@@ -22,3 +22,9 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Color Pallette
+#699EAD
+#697CAD
+#69AD9A
+
