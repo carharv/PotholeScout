@@ -1,5 +1,8 @@
 # pothole-scout
 
+## Production URL
+https://pothole-scout.vercel.app
+
 ## Project setup
 ```
 yarn install
