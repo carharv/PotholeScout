@@ -1,20 +1,19 @@
 <template>
   <div id="app">
     <h1>Pothole Scout</h1>
-    <div id="map">
-      <Map />
-    </div>
+    <nav>
+      <router-link to="/">Home</router-link>
+      <router-link to="/map">Map</router-link>
+    </nav>
+    <router-view />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import Map from "./components/Map.vue";
 
 @Component({
-  components: {
-    Map,
-  },
+  components: {},
 })
 export default class App extends Vue {}
 </script>
@@ -29,9 +28,13 @@ export default class App extends Vue {}
   margin-top: 60px;
 }
 
-#map {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+nav {
+  padding: 30px;
+}
+
+nav a {
+  font-weight: bold;
+  color: #2c3e50;
+  padding: 1em;
 }
 </style>

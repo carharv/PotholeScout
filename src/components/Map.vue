@@ -1,12 +1,17 @@
 <template>
-  <LMap
-    style="height: 500px; width: 800px"
-    :zoom="13"
-    :center="mapCenter"
-    @click="onMapClicked"
-  >
-    <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
-  </LMap>
+  <div>
+    <h1>This is from Map.vue Component</h1>
+    <div id="map">
+      <LMap
+        style="height: 500px; width: 800px"
+        :zoom="13"
+        :center="mapCenter"
+        @click="onMapClicked"
+      >
+        <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
+      </LMap>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -15,7 +20,7 @@ import { LMap, LTileLayer, LMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
 
 @Component({ components: { LMap, LTileLayer, LMarker } })
-export default class WorldMap extends Vue {
+export default class Map extends Vue {
   geoPos: { lat?: number; lng?: number } = {};
   mapCenter = [42.963, -85.668];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -27,3 +32,11 @@ export default class WorldMap extends Vue {
   }
 }
 </script>
+
+<style scoped>
+#map {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
