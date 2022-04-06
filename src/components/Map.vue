@@ -1,7 +1,10 @@
 <template>
   <div>
     <h1>This is from Map.vue Component</h1>
+
     <div id="map">
+      <h3>Map editable with click? {{ canEditMap }}</h3>
+      <h4>Heatmap View</h4>
       <LMap
         style="height: 500px; width: 800px"
         :zoom="13"
@@ -9,26 +12,102 @@
         @click="onMapClicked"
       >
         <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
+        <LCircleMarker
+          v-for="marker in markersArr"
+          :key="marker.id"
+          :lat-lng="marker"
+          :fillOpacity="0.5"
+          :fillColor="`#ffa500`"
+          :color="`#ffa500`"
+          :radius="100"
+        >
+          <LIcon
+            iconUrl="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F1024%2Fcone-icon.png&f=1&nofb=1"
+          >
+          </LIcon
+        ></LCircleMarker>
       </LMap>
+      <h4>Single Point View</h4>
+      <LMap
+        style="height: 500px; width: 800px"
+        :zoom="13"
+        :center="mapCenter"
+        @click="onMapClicked"
+      >
+        <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
+        <LMarker
+          v-for="marker in markersArr"
+          :key="marker.id"
+          :lat-lng="marker"
+        >
+          <LIcon
+            iconUrl="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F1024%2Fcone-icon.png&f=1&nofb=1"
+          >
+          </LIcon
+        ></LMarker>
+      </LMap>
+    </div>
+    <div id="tableDiv" v-show="markersArr[0]">
+      <h2>Reported Coordinates</h2>
+      <VTable :data="markersArr">
+        <template #head>
+          <th sortkey="lat">lat</th>
+          <th sortkey="lng">lng</th>
+        </template>
+        <template #body="{ rows }">
+          <tr v-for="row in rows" :key="row.id">
+            <td>{{ row.lat.slice(0, 8) }}</td>
+            <td>{{ row.lng.slice(0, 8) }}</td>
+          </tr>
+        </template>
+      </VTable>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
-import { LMap, LTileLayer, LMarker } from "vue2-leaflet";
+import { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
 
-@Component({ components: { LMap, LTileLayer, LMarker } })
+type Coordinate = {
+  lat: string;
+  lng: string;
+};
+
+@Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class Map extends Vue {
   geoPos: { lat?: number; lng?: number } = {};
+  coneIcon =
+    "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F1024%2Fcone-icon.png&f=1&nofb=1";
+  markersArr: Array<Coordinate> = [];
+
   mapCenter = [42.963, -85.668];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
+  canEditMap = true;
+
   onMapClicked(e: any): void {
-    // Emit an event to notify the parent element
-    this.$emit("map-clicked", e.latlng);
+    if (this.canEditMap) {
+      this.addCoords(e.latlng);
+    }
+  }
+
+  /* removeMarker(index: number) {
+    this.markersArr.splice(index, 1);
+  } */
+
+  addCoords(geoPos: { lat: number; lng: number }): void {
+    // When the user pans the map left/right the longitude
+    // angle can be out of the [-180,+180] range
+    while (geoPos.lng > 180) geoPos.lng -= 360;
+    while (geoPos.lng < -180) geoPos.lng += 360;
+    this.geoPos = { ...geoPos };
+    this.markersArr.push({
+      lng: this.geoPos.lng!.toString(),
+      lat: this.geoPos.lat!.toString(),
+    });
   }
 }
 </script>
@@ -36,7 +115,29 @@ export default class Map extends Vue {
 <style scoped>
 #map {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+#tableDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+table {
+  margin-top: 8px;
+}
+table tr:nth-child(odd) {
+  background-color: #69ad9a;
+}
+table tr:nth-child(even) {
+  background-color: #699ead;
+}
+
+table tr > td {
+  padding: 0.5em;
 }
 </style>
