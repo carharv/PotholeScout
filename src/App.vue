@@ -10,25 +10,18 @@
 </template>
 
 <script lang="ts">
-
 import { Component, Vue } from "vue-property-decorator";
-import LoginScreen from './components/LoginScreen.vue';
+import LoginScreen from "./components/LoginScreen.vue";
 
 @Component({
   components: {
-    LoginScreen
+    LoginScreen,
   },
-
 })
-
 export default class App extends Vue {}
 </script>
 
 <style>
-#app {
-
-}
-
 nav {
   padding: 30px;
 }
