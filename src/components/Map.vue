@@ -9,12 +9,7 @@
     <div id="map">
       <h3>Map editable with click? {{ canEditMap }}</h3>
       <h4>Heatmap View</h4>
-      <LMap
-        style="height: 500px; width: 800px"
-        :zoom="13"
-        :center="mapCenter"
-        @click="onMapClicked"
-      >
+      <LMap style="height: 500px; width: 800px" :zoom="13" :center="mapCenter">
         <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
         <LCircleMarker
           v-for="pothole in potholeArr"
