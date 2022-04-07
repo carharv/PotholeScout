@@ -17,9 +17,9 @@
       >
         <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
         <LCircleMarker
-          v-for="marker in markersArr"
-          :key="marker.id"
-          :lat-lng="marker"
+          v-for="pothole in potholeArr"
+          :key="pothole.id"
+          :lat-lng="pothole.coordinates"
           :fillOpacity="0.5"
           :fillColor="`#ffa500`"
           :color="`#ffa500`"
@@ -40,9 +40,9 @@
       >
         <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
         <LMarker
-          v-for="marker in markersArr"
-          :key="marker.id"
-          :lat-lng="marker"
+          v-for="pothole in potholeArr"
+          :key="pothole.id"
+          :lat-lng="pothole.coordinates"
         >
           <LIcon
             iconUrl="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F1024%2Fcone-icon.png&f=1&nofb=1"
@@ -51,17 +51,21 @@
         ></LMarker>
       </LMap>
     </div>
-    <div id="tableDiv" v-show="markersArr[0]">
+    <div id="tableDiv" v-show="potholeArr[0]">
       <h2>Reported Coordinates</h2>
-      <VTable :data="markersArr">
+      <VTable :data="potholeArr">
         <template #head>
-          <th sortkey="lat">lat</th>
-          <th sortkey="lng">lng</th>
+          <th>Date</th>
+          <th>UID</th>
+          <th>lat</th>
+          <th>lng</th>
         </template>
         <template #body="{ rows }">
           <tr v-for="row in rows" :key="row.id">
-            <td>{{ row.lat.slice(0, 8) }}</td>
-            <td>{{ row.lng.slice(0, 8) }}</td>
+            <td>{{ row.dateCreated }}</td>
+            <td>{{ row.creatorUID }}</td>
+            <td>{{ row.coordinates.lat.slice(0, 8) }}</td>
+            <td>{{ row.coordinates.lng.slice(0, 8) }}</td>
           </tr>
         </template>
       </VTable>
@@ -79,13 +83,20 @@ type Coordinate = {
   lng: string;
 };
 
+type Pothole = {
+  creatorUID: string;
+  deletorUID?: string;
+  dateCreated?: string;
+  dateRemoved?: Date;
+  coordinates: Coordinate;
+};
+
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class Map extends Vue {
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon =
     "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F1024%2Fcone-icon.png&f=1&nofb=1";
-  markersArr: Array<Coordinate> = [];
-
+  potholeArr: Array<Pothole> = [];
   mapCenter = [42.963, -85.668];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   mapAttribution =
@@ -108,9 +119,13 @@ export default class Map extends Vue {
     while (geoPos.lng > 180) geoPos.lng -= 360;
     while (geoPos.lng < -180) geoPos.lng += 360;
     this.geoPos = { ...geoPos };
-    this.markersArr.push({
-      lng: this.geoPos.lng!.toString(),
-      lat: this.geoPos.lat!.toString(),
+    this.potholeArr.push({
+      creatorUID: "testUID",
+      dateCreated: Date(),
+      coordinates: {
+        lng: this.geoPos.lng!.toString(),
+        lat: this.geoPos.lat!.toString(),
+      },
     });
   }
 }
