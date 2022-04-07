@@ -7,7 +7,7 @@
         <input type="text" id="fname" name="fname" /><br />
         <label for="lname">Password: </label><br />
         <input type="text" id="lname" name="lname" /><br /><br />
-        <input type="submit" value="Login" />
+        <input type="submit" value="Login" @click="pushToHome" />
       </div>
     </form>
   </div>
@@ -19,6 +19,10 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 @Component
 export default class LoginScreen extends Vue {
   @Prop() private msg!: string;
+
+  pushToHome(): void {
+    this.$router.push({ name: "home" });
+  }
 }
 </script>
 

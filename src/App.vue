@@ -1,10 +1,6 @@
 <template>
   <div id="app">
     <h1>Pothole Scout</h1>
-    <nav>
-      <router-link to="/">Home</router-link>
-      <router-link to="/map">Map</router-link>
-    </nav>
     <router-view />
   </div>
 </template>

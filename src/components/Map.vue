@@ -1,5 +1,9 @@
 <template>
   <div>
+    <nav>
+      <router-link to="/home">Home</router-link>
+      <router-link to="/map">Map</router-link>
+    </nav>
     <h1>This is from Map.vue Component</h1>
 
     <div id="map">
