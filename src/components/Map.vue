@@ -20,10 +20,7 @@
           :color="`#ffa500`"
           :radius="100"
         >
-          <LIcon
-            iconUrl="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F1024%2Fcone-icon.png&f=1&nofb=1"
-          >
-          </LIcon
+          <LIcon iconUrl="../assets/coneIcon.png"> </LIcon
         ></LCircleMarker>
       </LMap>
       <h4>Single Point View</h4>
@@ -145,7 +142,7 @@ table {
   margin-top: 8px;
 }
 table tr:nth-child(odd) {
-  background-color: #69ad9a;
+  background-color: #697cad;
 }
 table tr:nth-child(even) {
   background-color: #699ead;
