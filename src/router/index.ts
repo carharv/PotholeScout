@@ -2,6 +2,8 @@ import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Map from "../components/Map.vue";
 import HomeView from "../views/HomeView.vue";
+import LoginScreen from "../components/LoginScreen.vue";
+
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
@@ -12,6 +14,11 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: "/",
+    name: "login",
+    component: LoginScreen,
+  },
+  {
+    path: "/home",
     name: "home",
     component: HomeView,
   },
