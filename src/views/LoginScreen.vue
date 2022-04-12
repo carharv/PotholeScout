@@ -1,12 +1,14 @@
 <template>
   <div class="hello">
     <form action="">
+      <h3>Are you new here?</h3>
+      <input type="button" value="Sign Up" @click="pushToSignUp" />
       <h3>Login</h3>
       <div class="form-wrapper">
-        <label for="fname">Username: </label><br />
-        <input type="text" id="fname" name="fname" /><br />
-        <label for="lname">Password: </label><br />
-        <input type="text" id="lname" name="lname" /><br /><br />
+        <label for="uname">Username: </label><br />
+        <input type="text" id="uname" name="uname" /><br />
+        <label for="password">Password: </label><br />
+        <input type="text" id="password" name="password" /><br /><br />
         <input type="submit" value="Login" @click="pushToHome" />
       </div>
     </form>
@@ -22,6 +24,10 @@ export default class LoginScreen extends Vue {
 
   pushToHome(): void {
     this.$router.push({ name: "home" });
+  }
+
+  pushToSignUp(): void {
+    this.$router.push({ name: "signup" });
   }
 }
 </script>
@@ -41,7 +47,7 @@ export default class LoginScreen extends Vue {
 }
 
 form {
-  padding: 30px;
+  padding: 1em;
   width: 30%;
   max-width: 1000px;
   min-width: 300px;
@@ -49,7 +55,6 @@ form {
   height: 100%;
   background-color: #699ead;
   text-align: center;
-  height: 300px;
   margin-top: 150px;
   border-radius: 10px;
 }
