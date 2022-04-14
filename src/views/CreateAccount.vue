@@ -84,7 +84,7 @@ export default class SignUpView extends Vue {
   message = "";
   userDoc!: DocumentReference;
   uid: string | undefined = "";
-  accountCreated: boolean = false;
+  accountCreated = false;
   auth: Auth | null = null;
 
   mounted(): void {
