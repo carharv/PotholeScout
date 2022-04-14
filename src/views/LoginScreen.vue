@@ -1,33 +1,92 @@
 <template>
-  <div class="hello">
-    <form action="">
-      <h3>Are you new here?</h3>
-      <input type="button" value="Sign Up" @click="pushToSignUp" />
-      <h3>Login</h3>
-      <div class="form-wrapper">
-        <label for="uname">Username: </label><br />
-        <input type="text" id="uname" name="uname" /><br />
-        <label for="password">Password: </label><br />
-        <input type="text" id="password" name="password" /><br /><br />
-        <input type="submit" value="Login" @click="pushToHome" />
-      </div>
-    </form>
+  <div id="form" class="hello">
+    <h3>Are you new here?</h3>
+    <input type="button" value="Sign Up" @click="pushToSignup" />
+    <h3>Login</h3>
+    <div class="form-wrapper">
+      <label for="uname">Email: </label><br />
+      <input type="text" id="email" v-model="email" /><br />
+      <label for="password">Password: </label><br />
+      <input type="text" id="password" v-model="password" /><br /><br />
+      <button :disabled="email.length === 0" @click="resetPass">
+        Reset Password
+      </button>
+      <input type="submit" value="Login" @click="emailLogin" />
+    </div>
+    <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
+import {
+  getAuth,
+  Auth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  UserCredential,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  signOut,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 
 @Component
 export default class LoginScreen extends Vue {
   @Prop() private msg!: string;
 
+  email = "";
+  password = "";
+  message = "";
+  auth: Auth | null = null;
+
+  mounted(): void {
+    this.auth = getAuth();
+  }
+
+  showMessage(txt: string) {
+    this.message = txt;
+
+    // The message will automatically disappear after 5 seconds
+    setTimeout(() => {
+      this.message = "";
+    }, 5000);
+  }
+
   pushToHome(): void {
     this.$router.push({ name: "home" });
   }
 
-  pushToSignUp(): void {
+  pushToSignup(): void {
     this.$router.push({ name: "signup" });
+  }
+
+  emailLogin(): void {
+    signInWithEmailAndPassword(this.auth!, this.email, this.password)
+      .then(async (cr: UserCredential) => {
+        if (cr.user.emailVerified) {
+          this.pushToHome();
+        } else {
+          this.showMessage("You must first verify your email");
+          await signOut(this.auth!);
+        }
+      })
+      .catch((err: any) => {
+        this.showMessage(`Unable to login ${err}`);
+      });
+  }
+
+  resetPass(): void {
+    sendPasswordResetEmail(this.auth!, this.email)
+      .then(() => {
+        this.showMessage(
+          `A Password Reset Link Has Been Sent To ${this.email}`
+        );
+      })
+      .catch((err: any) => {
+        this.showMessage("Unable to reset password ${err}");
+      });
   }
 }
 </script>
@@ -46,7 +105,7 @@ export default class LoginScreen extends Vue {
   margin: 0 auto;
 }
 
-form {
+#form {
   padding: 1em;
   width: 30%;
   max-width: 1000px;
@@ -59,7 +118,7 @@ form {
   border-radius: 10px;
 }
 
-form input[type="submit"] {
+#form input[type="submit"] {
   float: right;
   width: 100px;
   color: #699ead;
@@ -73,11 +132,11 @@ form input[type="submit"] {
   transition: all 0.4s;
 }
 
-form input[type="submit"]:hover {
+#form input[type="submit"]:hover {
   transform: scale(1.2);
 }
 
-form input[type="text"] {
+#form input[type="text"] {
   width: 100%;
   border-radius: 5px;
   border: none;
@@ -89,7 +148,7 @@ form input[type="text"] {
   transition: all 0.2s;
 }
 
-form input[type="text"]:focus {
+#form input[type="text"]:focus {
   border: 2px solid white;
   outline: none;
 }
