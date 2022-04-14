@@ -8,6 +8,8 @@
       <input type="text" id="lname" v-model="lname" />
       <label for="phone">Phone</label>
       <input type="text" id="phone" v-model="phone" />
+      <label for="zipcode">Zipcode</label>
+      <input type="text" id="zipcode" v-model="zipcode" />
       <label for="email">Email</label>
       <input type="text" id="email" v-model="email" />
       <label for="password">Password</label>
@@ -61,6 +63,7 @@ type user = {
   lname: string;
   email: string;
   phone: string;
+  zipcode: string;
 };
 
 //Constants
@@ -74,6 +77,7 @@ export default class SignUpView extends Vue {
   fname = "";
   lname = "";
   phone = "";
+  zipcode = "";
   userInfoObj!: user;
   retypePassword = "";
   inputErrors: string[] = [];
@@ -112,6 +116,7 @@ export default class SignUpView extends Vue {
       //Set the names to the proper case
       fname: this.capitalizeName(this.fname.toLowerCase()),
       lname: this.capitalizeName(this.lname.toLowerCase()),
+      zipcode: this.zipcode,
       email: this.email,
       phone: this.phone,
     };
@@ -151,14 +156,18 @@ export default class SignUpView extends Vue {
       checksPassed++;
     }
 
-    //Return true if all 4 checks are passed
-    return checksPassed === 4;
+    if (this.validZipcode) {
+      checksPassed++;
+    }
+
+    //Return true if all 5 checks are passed
+    return checksPassed === 5;
   }
 
   //This function checks for blank fields
   get checkForBlankFields(): boolean {
     //Start with 6 blank fields and decrement every time a field is filled
-    let blankFields = 6;
+    let blankFields = 7;
 
     if (!this.fname) {
       this.inputErrors.push("First Name is Required");
@@ -174,6 +183,12 @@ export default class SignUpView extends Vue {
 
     if (!this.phone) {
       this.inputErrors.push("Phone is Required");
+    } else {
+      blankFields--;
+    }
+
+    if (!this.zipcode) {
+      this.inputErrors.push("Zipcode is Required");
     } else {
       blankFields--;
     }
@@ -223,12 +238,24 @@ export default class SignUpView extends Vue {
     return passed;
   }
 
-  //This function makes sure the phonne has 10 digits
+  //This function makes sure the phone has 10 digits
   get validPhone(): boolean {
     let passed = false;
 
     if (this.phone.length !== 10) {
       this.inputErrors.push("Invalid Phone - Please Enter Just 10 Digits");
+    } else {
+      passed = true;
+    }
+    return passed;
+  }
+
+  //This function makes sure the zipcode has 5 digits
+  get validZipcode(): boolean {
+    let passed = false;
+
+    if (this.zipcode.length !== 5) {
+      this.inputErrors.push("Invalid Zipcode - Please Enter Just 5 Digits");
     } else {
       passed = true;
     }
