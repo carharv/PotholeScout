@@ -32,6 +32,7 @@
       <ul>
         <li v-for="(error, pos) in inputErrors" :key="pos">{{ error }}</li>
       </ul>
+      <button @click="getUserGeopos">Get GEOPOS</button>
     </div>
     <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
   </div>
@@ -57,6 +58,7 @@ import {
   getFirestore,
 } from "firebase/firestore";
 import { app } from "../firebaseConfig";
+import axios, { AxiosResponse } from "axios";
 
 type user = {
   fname: string;
@@ -64,6 +66,19 @@ type user = {
   email: string;
   phone: string;
   zipcode: string;
+  lat: string;
+  long: string;
+  locality: string;
+};
+
+type geoPos = {
+  data: Array<geoInfo>;
+};
+
+type geoInfo = {
+  latitude: string;
+  longitude: string;
+  locality: string;
 };
 
 //Constants
@@ -78,6 +93,9 @@ export default class SignUpView extends Vue {
   lname = "";
   phone = "";
   zipcode = "";
+  lat = "";
+  long = "";
+  locality = "";
   userInfoObj!: user;
   retypePassword = "";
   inputErrors: string[] = [];
@@ -86,12 +104,16 @@ export default class SignUpView extends Vue {
   uid: string | undefined = "";
   accountCreated = false;
   auth: Auth | null = null;
+  geoPosArr: Array<geoPos> = [];
 
   mounted(): void {
     this.auth = getAuth();
   }
 
-  createAccount(): void {
+  async createAccount() {
+    //First get the user's geoPos from their zipcode
+    this.getUserGeopos();
+
     createUserWithEmailAndPassword(this.auth!, this.email, this.password)
       .then(async (cr: UserCredential) => {
         await sendEmailVerification(cr.user);
@@ -119,7 +141,29 @@ export default class SignUpView extends Vue {
       zipcode: this.zipcode,
       email: this.email,
       phone: this.phone,
+      lat: this.lat,
+      long: this.long,
+      locality: this.locality,
     };
+  }
+
+  //Function that gets the user's lat, long, and locality from their zipcode
+  async getUserGeopos() {
+    await axios
+      .request({
+        method: "GET",
+        url: "http://api.positionstack.com/v1/forward?",
+        params: {
+          access_key: "a5af50b77b97143132298810bdd80333",
+          query: this.zipcode,
+        },
+      })
+      .then((r: AxiosResponse) => r.data)
+      .then((r: geoPos) => {
+        this.lat = r.data[0].latitude.toString();
+        this.long = r.data[0].longitude.toString();
+        this.locality = r.data[0].locality;
+      });
   }
 
   //This function stores the user object in firestore
