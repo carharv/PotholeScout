@@ -1,28 +1,8 @@
 <template>
   <div>
-    <nav>
-      <router-link to="/home">Home</router-link>
-      <router-link to="/map">Map</router-link>
-    </nav>
-    <h1>This is from Map.vue Component</h1>
+    <h1>This is from ClickableMap.vue Component</h1>
 
     <div id="map">
-      <h3>Map editable with click? {{ canEditMap }}</h3>
-      <h4>Heatmap View</h4>
-      <LMap style="height: 500px; width: 800px" :zoom="13" :center="mapCenter">
-        <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
-        <LCircleMarker
-          v-for="pothole in potholeArr"
-          :key="pothole.id"
-          :lat-lng="pothole.coordinates"
-          :fillOpacity="0.5"
-          :fillColor="`#ffa500`"
-          :color="`#ffa500`"
-          :radius="100"
-        >
-          <LIcon iconUrl="../assets/coneIcon.png"> </LIcon
-        ></LCircleMarker>
-      </LMap>
       <h4>Single Point View</h4>
       <LMap
         style="height: 500px; width: 800px"
@@ -32,20 +12,18 @@
       >
         <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
         <LMarker
-          v-for="pothole in potholeArr"
+          v-for="pothole in displayPotholeArr"
           :key="pothole.id"
           :lat-lng="pothole.coordinates"
         >
-          <LIcon
-            iconUrl="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F1024%2Fcone-icon.png&f=1&nofb=1"
-          >
-          </LIcon
-        ></LMarker>
+          <LIcon iconUrl="https://ik.imagekit.io/carharv/coneIcon"> </LIcon>
+          ></LMarker
+        >
       </LMap>
     </div>
-    <div id="tableDiv" v-show="potholeArr[0]">
-      <h2>Reported Coordinates</h2>
-      <VTable :data="potholeArr">
+    <div id="tableDiv" v-show="reportedPotholeArr[0]">
+      <h2>Reported Potholes</h2>
+      <VTable :data="reportedPotholeArr">
         <template #head>
           <th>Date</th>
           <th>UID</th>
@@ -66,39 +44,46 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+/* 
+To use this component you must first import the component
+
+import ClickableMap from "../components/ClickableMap.vue";
+@Component({ components: { ClickableMap } })
+
+Then you must supply the component with the following props: uid, existingPotholeArr, mapCenter
+
+In return, this component will emit the full reportedPotholeArr each time a user clicks the map.
+Use @reportedArrUpdated in the params when using this component
+*/
+
+import { Vue, Component, Prop } from "vue-property-decorator";
 import { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
-
-type Coordinate = {
-  lat: string;
-  lng: string;
-};
-
-type Pothole = {
-  creatorUID: string;
-  deletorUID?: string;
-  dateCreated?: string;
-  dateRemoved?: Date;
-  coordinates: Coordinate;
-};
+import { Pothole } from "@/datatypes";
 
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
-export default class Map extends Vue {
+export default class ClickableMap extends Vue {
+  @Prop() existingPotholeArr!: Array<Pothole>;
+  @Prop() uid!: string;
+  @Prop() mapCenter!: Array<number>;
+
   geoPos: { lat?: number; lng?: number } = {};
-  coneIcon =
-    "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ficons.iconarchive.com%2Ficons%2Fpaomedia%2Fsmall-n-flat%2F1024%2Fcone-icon.png&f=1&nofb=1";
-  potholeArr: Array<Pothole> = [];
-  mapCenter = [42.963, -85.668];
+  coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
+  reportedPotholeArr: Array<Pothole> = [];
+  displayPotholeArr: Array<Pothole> = [];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
-  canEditMap = true;
+
+  mounted() {
+    //Copy existing potholes to the display array
+    this.existingPotholeArr.forEach((obj) =>
+      this.reportedPotholeArr.push(Object.assign({}, obj))
+    );
+  }
 
   onMapClicked(e: any): void {
-    if (this.canEditMap) {
-      this.addCoords(e.latlng);
-    }
+    this.addCoords(e.latlng);
   }
 
   /* removeMarker(index: number) {
@@ -111,14 +96,29 @@ export default class Map extends Vue {
     while (geoPos.lng > 180) geoPos.lng -= 360;
     while (geoPos.lng < -180) geoPos.lng += 360;
     this.geoPos = { ...geoPos };
-    this.potholeArr.push({
-      creatorUID: "testUID",
+
+    //First add object to the reported array
+    this.reportedPotholeArr.push({
+      creatorUID: this.uid,
       dateCreated: Date(),
       coordinates: {
         lng: this.geoPos.lng!.toString(),
         lat: this.geoPos.lat!.toString(),
       },
     });
+
+    //Then add object to the display array
+    this.displayPotholeArr.push({
+      creatorUID: this.uid,
+      dateCreated: Date(),
+      coordinates: {
+        lng: this.geoPos.lng!.toString(),
+        lat: this.geoPos.lat!.toString(),
+      },
+    });
+
+    //emit the newly reported potholes to the parent component
+    this.$emit("reportedArrUpdated", this.reportedPotholeArr);
   }
 }
 </script>
