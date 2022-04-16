@@ -1,17 +1,19 @@
 <template>
   <div id="form" class="hello">
-    <h3>Are you new here?</h3>
-    <input type="button" value="Sign Up" @click="pushToSignup" />
+    <div id="signup">
+        <h4>Are you new here?</h4>
+        <input class="button" type="button" value="Sign Up" @click="pushToSignup" />
+    </div>
     <h3>Login</h3>
     <div class="form-wrapper">
       <label for="uname">Email: </label><br />
       <input type="text" id="email" v-model="email" /><br />
       <label for="password">Password: </label><br />
       <input type="text" id="password" v-model="password" /><br /><br />
-      <button :disabled="email.length === 0" @click="resetPass">
+      <button class="button" :disabled="email.length === 0" @click="resetPass">
         Reset Password
       </button>
-      <input type="submit" value="Login" @click="emailLogin" />
+      <input  type="submit" value="Login" @click="emailLogin" />
     </div>
     <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
   </div>
@@ -128,7 +130,7 @@ export default class LoginScreen extends Vue {
   transition: all 0.4s;
 }
 
-#form input[type="submit"]:hover {
+#form input[type="submit"]:hover, .button:hover {
   transform: scale(1.2);
 }
 
@@ -166,4 +168,29 @@ h1 {
 h3 {
   font-size: 24px;
 }
+
+#signup {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+}
+
+h4 {
+  display: inline;
+  margin: 0;
+  padding-right: 10px;
+}
+
+.button {
+  width: 130px;
+  color: #699ead;
+  font-size: 15px;
+  font-weight: bold;
+  border: none;
+  padding: 5px;
+  border-radius: 10px;
+  padding-right: 0;
+  transition: all 0.4s;
+}
+
 </style>
