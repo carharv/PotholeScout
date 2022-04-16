@@ -1,40 +1,48 @@
 <template>
   <div>
+    <h2>Sign Up</h2>
     <div class="formWrapper">
-      <h2>Sign Up</h2>
-      <label for="fname">First Name</label>
-      <input type="text" id="fname" v-model="fname" />
-      <label for="lname">Last Name</label>
-      <input type="text" id="lname" v-model="lname" />
-      <label for="phone">Phone</label>
-      <input type="text" id="phone" v-model="phone" />
-      <label for="zipcode">Zipcode</label>
-      <input type="text" id="zipcode" v-model="zipcode" />
-      <label for="email">Email</label>
-      <input type="text" id="email" v-model="email" />
-      <label for="password">Password</label>
-      <input type="text" id="password" v-model="password" />
-      <label for="retypePassword">Retype Password</label>
-      <input type="text" id="retypePassword" v-model="retypePassword" />
-      <button
-        :disabled="!isValidInput"
-        v-show="!accountCreated"
-        @click="createAccount"
-      >
-        Create Account
-      </button>
-      <button v-show="accountCreated" @click="pushToLogin">
-        Return To Login
-      </button>
-      <p v-if="inputErrors.length">
+      <div>
+        <form>
+          <label for="fname">First Name</label>
+          <input type="text" id="fname" v-model="fname" />
+          <label for="lname">Last Name</label>
+          <input type="text" id="lname" v-model="lname" />
+          <label for="phone">Phone</label>
+          <input type="text" id="phone" v-model="phone" />
+          <label for="zipcode">Zipcode</label>
+          <input type="text" id="zipcode" v-model="zipcode" />
+          <label for="email">Email</label>
+          <input type="text" id="email" v-model="email" />
+          <label for="password">Password</label>
+          <input type="text" id="password" v-model="password" />
+          <label for="retypePassword">Retype Password</label>
+          <input type="text" id="retypePassword" v-model="retypePassword" />
+          </form>
+        <button
+          class="button"
+          :disabled="!isValidInput"
+          v-show="!accountCreated"
+          @click="createAccount"
+        >
+          Create Account
+        </button>
+        <button class="button" v-show="accountCreated" @click="pushToLogin">
+          Return To Login
+        </button>
+      </div>
+      <div>
+        <p class="error" v-if="inputErrors.length">
         <b>Please Correct the Following Error(s):</b>
-      </p>
-      <ul>
-        <li v-for="(error, pos) in inputErrors" :key="pos">{{ error }}</li>
-      </ul>
-      <button @click="getUserGeopos">Get GEOPOS</button>
-    </div>
-    <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
+        </p>
+        <ul class="error" >
+          <li v-for="(error, pos) in inputErrors" :key="pos">{{ error }}</li>
+        </ul>
+        <button class="button" @click="getUserGeopos">Get GEOPOS</button>
+        </div>
+        <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
+      </div>
+
   </div>
 </template>
 
@@ -334,4 +342,56 @@ export default class SignUpView extends Vue {
 }
 </script>
 
-<style></style>
+<style>
+
+.formWrapper {
+  display: flex;
+  flex: 1 1 0px;
+  justify-content: center;
+  gap: 5%;
+}
+
+input[type="text"] {
+  display: block;
+  width: 400px;
+  border-radius: 5px;
+  border: none;
+  padding: 5px;
+  margin-top: 5px;
+  padding-right: 0;
+  padding-left: 0;
+  border: 2px solid #699ead;
+  transition: all 0.2s;
+  margin-bottom: 20px;
+}
+
+
+.button {
+  width: 130px;
+  color: #699ead;
+  font-size: 15px;
+  font-weight: bold;
+  border: none;
+  padding: 5px;
+  border-radius: 10px;
+  padding-right: 0;
+  transition: all 0.4s;
+}
+
+.button:hover {
+  transform: scale(1.2);
+}
+
+.error {
+  color: firebrick;
+}
+
+li {
+  list-style: ;
+  margin-bottom: 10px;
+}
+
+ul.error {
+  text-align: left;
+}
+</style>
