@@ -18,7 +18,7 @@
           <input type="text" id="password" v-model="password" />
           <label for="retypePassword">Retype Password</label>
           <input type="text" id="retypePassword" v-model="retypePassword" />
-          </form>
+        </form>
         <button
           class="button"
           :disabled="!isValidInput"
@@ -33,16 +33,14 @@
       </div>
       <div>
         <p class="error" v-if="inputErrors.length">
-        <b>Please Correct the Following Error(s):</b>
+          <b>Please Correct the Following Error(s):</b>
         </p>
-        <ul class="error" >
+        <ul class="error">
           <li v-for="(error, pos) in inputErrors" :key="pos">{{ error }}</li>
         </ul>
-        <button class="button" @click="getUserGeopos">Get GEOPOS</button>
-        </div>
-        <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
       </div>
-
+      <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
+    </div>
   </div>
 </template>
 
@@ -343,7 +341,6 @@ export default class SignUpView extends Vue {
 </script>
 
 <style>
-
 .formWrapper {
   display: flex;
   flex: 1 1 0px;
@@ -364,7 +361,6 @@ input[type="text"] {
   transition: all 0.2s;
   margin-bottom: 20px;
 }
-
 
 .button {
   width: 130px;
@@ -387,7 +383,7 @@ input[type="text"] {
 }
 
 li {
-  list-style: ;
+  /*list-style: ;*/
   margin-bottom: 10px;
 }
 
