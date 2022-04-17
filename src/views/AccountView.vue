@@ -1,0 +1,30 @@
+<template>
+  <div>
+    <nav>
+      <router-link to="/home">Home</router-link>
+      <router-link to="/map">Map</router-link>
+      <router-link to="/account">Account</router-link>
+    </nav>
+    <h1>This heading is from AccountView.vue</h1>
+    <b-tabs pills vertical>
+      <b-tab title="Test" active>
+        <b-card-text>Test Contents</b-card-text>
+      </b-tab>
+      <b-tab title="Test2"
+        ><b-card-text>{{ testVar }}</b-card-text></b-tab
+      >
+    </b-tabs>
+  </div>
+</template>
+
+<script lang="ts">
+import { Vue, Component } from "vue-property-decorator";
+import { BTab, BTabs } from "bootstrap-vue";
+
+@Component({ components: { BTab, BTabs } })
+export default class AccountView extends Vue {
+  testVar = "This is from the testVar";
+}
+</script>
+
+<style></style>
