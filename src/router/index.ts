@@ -1,8 +1,9 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
-import Map from "../components/Map.vue";
+import Map from "../components/OldMap.vue";
 import HomeView from "../views/HomeView.vue";
-import LoginScreen from "../components/LoginScreen.vue";
+import LoginScreen from "../views/LoginScreen.vue";
+import CreateAccount from "../views/CreateAccount.vue";
 
 Vue.use(VueRouter);
 
@@ -13,9 +14,19 @@ const routes: Array<RouteConfig> = [
     component: LoginScreen,
   },
   {
+    path: "/signup",
+    name: "signup",
+    component: CreateAccount,
+  },
+  {
     path: "/home",
     name: "home",
     component: HomeView,
+  },
+  {
+    path: "/map",
+    name: "map",
+    component: Map,
   },
 ];
 
