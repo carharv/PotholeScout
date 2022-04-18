@@ -1,7 +1,7 @@
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
-import SmartTable from "vuejs-smart-table";
+const app = initializeApp(firebaseConfig);
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./firebaseConfig";
 
