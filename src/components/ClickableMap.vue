@@ -78,7 +78,7 @@ export default class ClickableMap extends Vue {
   mounted() {
     //Copy existing potholes to the display array
     this.existingPotholeArr.forEach((obj) =>
-      this.reportedPotholeArr.push(Object.assign({}, obj))
+      this.displayPotholeArr.push(Object.assign({}, obj))
     );
   }
 
