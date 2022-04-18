@@ -82,14 +82,12 @@ import {
   getDoc,
   DocumentSnapshot,
 } from "firebase/firestore";
-import {
-  getAuth,
-  } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
 const db: Firestore = getFirestore(app);
-const userCollection: CollectionReference = collection(db,"Users")
+const userCollection: CollectionReference = collection(db, "Users");
 
 type Coordinate = {
   lat: string;
@@ -126,32 +124,29 @@ export default class Map extends Vue {
   async mounted(): Promise<void> {
     const auth = getAuth();
     const user = auth.currentUser;
-      if (user && auth.currentUser != null) {
+    if (user && auth.currentUser != null) {
+      const q = query(collection(db, "Users"));
 
-        const q = query(collection(db, "Users"));
+      // pushes all potholes into an array
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        this.potholeArrAll.push(doc.data().potholeArray);
+      });
 
-        // pushes all potholes into an array
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          // doc.data() is never undefined for query doc snapshots
-          this.potholeArrAll.push(doc.data().potholeArray);
-        });
+      const uid = auth.currentUser.uid;
 
-        const uid = auth.currentUser.uid;
+      // Use filesystem syntax for document path
+      const uid_doc: DocumentReference = doc(userCollection, uid);
 
-        // Use filesystem syntax for document path
-        const uid_doc : DocumentReference = doc(userCollection, uid);
-
-        // Pushes only personal potholes into array
-        const current = doc(db, "Users", uid);
-        getDoc(current).then((userSnapshot: DocumentSnapshot) => {
-          if (userSnapshot.exists()){
-            this.potholeArr = userSnapshot.data().potholeArray;
-          }
-        });
-        
-      }
-    
+      // Pushes only personal potholes into array
+      const current = doc(db, "Users", uid);
+      getDoc(current).then((userSnapshot: DocumentSnapshot) => {
+        if (userSnapshot.exists()) {
+          this.potholeArr = userSnapshot.data().potholeArray;
+        }
+      });
+    }
   }
 
   /* removeMarker(index: number) {
@@ -184,22 +179,22 @@ export default class Map extends Vue {
     });
   }
 
-  saveCoords() :void {
+  saveCoords(): void {
     const auth = getAuth();
     const user = auth.currentUser;
-      if (user && auth.currentUser != null) {
-        const userInfo = `${user.displayName}`;
-        const uid = auth.currentUser.uid;
+    if (user && auth.currentUser != null) {
+      const userInfo = `${user.displayName}`;
+      const uid = auth.currentUser.uid;
 
-        // Use filesystem syntax for document path
-        const uid_doc : DocumentReference = doc(userCollection, uid);
-        // Add a new document with our own id
-        setDoc(uid_doc, {
-          userName: userInfo,
-          userID:uid,
-          potholeArray: this.potholeArr,
-        });
-      }
+      // Use filesystem syntax for document path
+      const uid_doc: DocumentReference = doc(userCollection, uid);
+      // Add a new document with our own id
+      setDoc(uid_doc, {
+        userName: userInfo,
+        userID: uid,
+        potholeArray: this.potholeArr,
+      });
+    }
   }
 }
 </script>

@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
-import Map from "../components/Map.vue";
+import Map from "../components/OldMap.vue";
 import HomeView from "../views/HomeView.vue";
 import LoginScreen from "../views/LoginScreen.vue";
 import CreateAccount from "../views/CreateAccount.vue";
