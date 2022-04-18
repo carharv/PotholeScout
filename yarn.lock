@@ -4,6 +4,8 @@
 
 "@achrinza/node-ipc@9.2.2":
   "integrity" "sha512-b90U39dx0cU6emsOvy5hxU4ApNXnE3+Tuo8XQZfiKTGelDwpMwBVgBP7QX6dGTcJgu/miyJuNJ/2naFBliNWEw=="
+  "resolved" "https://registry.npmjs.org/@achrinza/node-ipc/-/node-ipc-9.2.2.tgz"
+  "version" "9.2.2"
   dependencies:
     "@node-ipc/js-queue" "2.0.3"
     "event-pubsub" "4.3.0"

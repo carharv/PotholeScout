@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@vue/composition-api": "^1.4.9",
-    "@vue/composition-api": "^1.4.9",
     "axios": "^0.26.1",
     "core-js": "^3.8.3",
     "firebase": "^9.6.10",

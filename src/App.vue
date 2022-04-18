@@ -2,6 +2,8 @@
   <div id="app">
     <h1>Pothole Scout</h1>
     <router-view />
+  </div>
+</template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
