@@ -6,14 +6,16 @@
       <router-link to="/account">Account</router-link>
     </nav>
     <h1>This heading is from AccountView.vue</h1>
-    <b-tabs pills vertical>
-      <b-tab title="Test" active>
-        <b-card-text>Test Contents</b-card-text>
-      </b-tab>
-      <b-tab title="Test2"
-        ><b-card-text>{{ testVar }}</b-card-text></b-tab
-      >
-    </b-tabs>
+    <div id="accountTabs">
+      <b-tabs pills vertical>
+        <b-tab title="Test" active>
+          <b-card-text>Test Contents</b-card-text>
+        </b-tab>
+        <b-tab title="Test2"
+          ><b-card-text>{{ testVar }}</b-card-text></b-tab
+        >
+      </b-tabs>
+    </div>
   </div>
 </template>
 
@@ -27,4 +29,11 @@ export default class AccountView extends Vue {
 }
 </script>
 
-<style></style>
+<style>
+#accountTabs {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+</style>
