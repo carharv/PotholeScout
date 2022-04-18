@@ -8,6 +8,11 @@ Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
+    path: "/",
+    name: "login",
+    component: LoginScreen,
+  },
+  {
     path: "/home",
     name: "home",
     component: HomeView,
