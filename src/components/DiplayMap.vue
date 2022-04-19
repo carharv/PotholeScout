@@ -1,9 +1,5 @@
 <template>
   <div>
-    <nav>
-      <router-link to="/home">Home</router-link>
-      <router-link to="/map">Map</router-link>
-    </nav>
     <h1>This is from Map.vue Component</h1>
 
     <div id="map">
@@ -82,19 +78,51 @@ Then you must supply the component with the following props: displayPotholeArr (
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Pothole } from "@/datatypes";
+import { Pothole } from "../datatypes";
+import {
+  collection,
+  CollectionReference,
+  doc,
+  DocumentReference,
+  Firestore,
+  setDoc,
+  getDocs,
+  query,
+  getDoc,
+  DocumentSnapshot,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { app } from "../firebaseConfig";
+
+const db: Firestore = getFirestore(app);
+const userCollection: CollectionReference = collection(db, "potholes");
 
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class DisplayMap extends Vue {
-  @Prop() displayPotholeArr!: Array<Pothole>;
-  @Prop() mapCenter!: Array<number>;
-  @Prop() heatmapMode!: boolean;
-
+  
   geoPos: { lat?: number; lng?: number } = {};
-  coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
+  displayPotholeArr: Array<Pothole> = [];
+  heatmapMode = true;
+  mapCenter = [42.963, -85.668];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
+  canEditMap = false;
+  coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
+  
+
+  async mounted(): Promise<void> {
+    
+    const q = query(collection(db, "potholes"));
+
+    // pushes all potholes into an array
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      this.displayPotholeArr = doc.data().potholeArray;
+    });
+  }
 }
 </script>
 

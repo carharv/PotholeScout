@@ -5,12 +5,16 @@
       <router-link to="/report">Report</router-link>
     </nav>
     <h1>This heading is from HomeView.vue</h1>
+    <DisplayMap/>
   </div>
 </template>
 
 <script>
-import { Vue } from "vue-property-decorator";
 
+import { Component, Vue } from "vue-property-decorator";
+import DisplayMap from "../components/DiplayMap.vue";
+
+@Component ({ components: { DisplayMap } })
 export default class HomeView extends Vue {}
 </script>
 

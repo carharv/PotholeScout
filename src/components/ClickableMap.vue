@@ -21,6 +21,7 @@
         >
       </LMap>
     </div>
+    <button @click="saveCoords">Save Locations</button>
     <div id="tableDiv" v-show="reportedPotholeArr[0]">
       <h2>Reported Potholes</h2>
       <VTable :data="reportedPotholeArr">
@@ -59,14 +60,29 @@ Use @reportedArrUpdated in the params when using this component
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Pothole } from "@/datatypes";
+import { Pothole } from "../datatypes";
+import {
+  collection,
+  CollectionReference,
+  doc,
+  DocumentReference,
+  Firestore,
+  setDoc,
+  getDocs,
+  query,
+  getDoc,
+  DocumentSnapshot,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { app } from "../firebaseConfig";
+
+const db: Firestore = getFirestore(app);
+const userCollection: CollectionReference = collection(db, "potholes");
 
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class ClickableMap extends Vue {
-  @Prop() existingPotholeArr!: Array<Pothole>;
-  @Prop() uid!: string;
-  @Prop() mapCenter!: Array<number>;
-
+  mapCenter = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
   reportedPotholeArr: Array<Pothole> = [];
@@ -75,20 +91,27 @@ export default class ClickableMap extends Vue {
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
 
-  mounted() {
-    //Copy existing potholes to the display array
-    this.existingPotholeArr.forEach((obj) =>
-      this.displayPotholeArr.push(Object.assign({}, obj))
-    );
+  mounted(): void {
+    const auth = getAuth();
+    const user = auth.currentUser;
+      if (user && auth.currentUser != null) {
+ 
+        const uid = auth.currentUser.uid;
+ 
+        // Use filesystem syntax for document path
+        const uid_doc : DocumentReference = doc(userCollection, uid);
+ 
+        // Pushes only personal potholes into array
+        getDoc(uid_doc).then((userSnapshot: DocumentSnapshot) => {
+          if (userSnapshot.exists()){
+            this.displayPotholeArr = userSnapshot.data().potholeArray;
+            this.reportedPotholeArr = userSnapshot.data().potholeArray;
+          }
+        });
+       
+      }
+   
   }
-
-  onMapClicked(e: any): void {
-    this.addCoords(e.latlng);
-  }
-
-  /* removeMarker(index: number) {
-    this.markersArr.splice(index, 1);
-  } */
 
   addCoords(geoPos: { lat: number; lng: number }): void {
     // When the user pans the map left/right the longitude
@@ -96,30 +119,60 @@ export default class ClickableMap extends Vue {
     while (geoPos.lng > 180) geoPos.lng -= 360;
     while (geoPos.lng < -180) geoPos.lng += 360;
     this.geoPos = { ...geoPos };
+    const auth = getAuth();
+    const user = auth.currentUser;
+      if (user && auth.currentUser != null) {
+        const uid = auth.currentUser.uid;
+ 
+        // this is to keep a seperate list of personal potholes.
+        this.displayPotholeArr.push({
+          creatorUID: uid,
+          dateCreated: Date(),
+          coordinates: {
+            lng: this.geoPos.lng!.toString(),
+            lat: this.geoPos.lat!.toString(),
+          },
+        });
 
-    //First add object to the reported array
-    this.reportedPotholeArr.push({
-      creatorUID: this.uid,
-      dateCreated: Date(),
-      coordinates: {
-        lng: this.geoPos.lng!.toString(),
-        lat: this.geoPos.lat!.toString(),
-      },
-    });
-
-    //Then add object to the display array
-    this.displayPotholeArr.push({
-      creatorUID: this.uid,
-      dateCreated: Date(),
-      coordinates: {
-        lng: this.geoPos.lng!.toString(),
-        lat: this.geoPos.lat!.toString(),
-      },
-    });
-
-    //emit the newly reported potholes to the parent component
-    this.$emit("reportedArrUpdated", this.reportedPotholeArr);
+        // this is to keep a seperate list of personal potholes.
+        this.reportedPotholeArr.push({
+          creatorUID: uid,
+          dateCreated: Date(),
+          coordinates: {
+            lng: this.geoPos.lng!.toString(),
+            lat: this.geoPos.lat!.toString(),
+          },
+        });
+      }
   }
+
+
+  onMapClicked(e: any): void {
+    this.addCoords(e.latlng);
+  }
+
+  saveCoords(): void {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user && auth.currentUser != null) {
+      const userInfo = `${user.displayName}`;
+      const uid = auth.currentUser.uid;
+
+      // Use filesystem syntax for document path
+      const uid_doc: DocumentReference = doc(userCollection, uid);
+      // Add a new document with our own id
+      setDoc(uid_doc, {
+        userName: userInfo,
+        userID: uid,
+        potholeArray: this.reportedPotholeArr,
+      });
+    }
+  }
+
+  /* removeMarker(index: number) {
+    this.markersArr.splice(index, 1);
+  } */
+
 }
 </script>
 
