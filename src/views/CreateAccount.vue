@@ -8,6 +8,12 @@
           <input type="text" id="fname" v-model="fname" />
           <label for="lname">Last Name</label>
           <input type="text" id="lname" v-model="lname" />
+          <label for="dotCheck">Are you a DOT employee?</label>
+          <input type="checkbox" id="dotCheck" v-model="dotEmployee" />
+          <br />
+          <label v-show="dotEmployee" for="dotID">DOT ID#</label>
+          <input v-show="dotEmployee" type="text" id="dotID" v-model="dotID" />
+          <br />
           <label for="phone">Phone</label>
           <input type="text" id="phone" v-model="phone" />
           <label for="zipcode">Zipcode</label>
@@ -65,27 +71,7 @@ import {
 } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 import axios, { AxiosResponse } from "axios";
-
-type user = {
-  fname: string;
-  lname: string;
-  email: string;
-  phone: string;
-  zipcode: string;
-  lat: string;
-  long: string;
-  locality: string;
-};
-
-type geoPos = {
-  data: Array<geoInfo>;
-};
-
-type geoInfo = {
-  latitude: string;
-  longitude: string;
-  locality: string;
-};
+import { geoPos, user } from "@/datatypes";
 
 //Constants
 const db: Firestore = getFirestore(app);
@@ -97,6 +83,8 @@ export default class SignUpView extends Vue {
   password = "";
   fname = "";
   lname = "";
+  dotEmployee = false;
+  dotID = "";
   phone = "";
   zipcode = "";
   lat = "";
@@ -144,6 +132,8 @@ export default class SignUpView extends Vue {
       //Set the names to the proper case
       fname: this.capitalizeName(this.fname.toLowerCase()),
       lname: this.capitalizeName(this.lname.toLowerCase()),
+      dotEmployee: this.dotEmployee,
+      dotID: this.dotID,
       zipcode: this.zipcode,
       email: this.email,
       phone: this.phone,
@@ -217,7 +207,7 @@ export default class SignUpView extends Vue {
   //This function checks for blank fields
   get checkForBlankFields(): boolean {
     //Start with 6 blank fields and decrement every time a field is filled
-    let blankFields = 7;
+    let blankFields = 8;
 
     if (!this.fname) {
       this.inputErrors.push("First Name is Required");
@@ -227,6 +217,12 @@ export default class SignUpView extends Vue {
 
     if (!this.lname) {
       this.inputErrors.push("Last Name is Required");
+    } else {
+      blankFields--;
+    }
+
+    if (this.dotEmployee && !this.dotID) {
+      this.inputErrors.push("DOT ID# is Required");
     } else {
       blankFields--;
     }

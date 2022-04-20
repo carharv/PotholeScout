@@ -11,4 +11,27 @@ type Pothole = {
   coordinates: Coordinate;
 };
 
-export { Coordinate, Pothole };
+type user = {
+  fname: string;
+  lname: string;
+  dotEmployee: boolean;
+  dotID: string;
+  email: string;
+  phone: string;
+  zipcode: string;
+  lat: string;
+  long: string;
+  locality: string;
+};
+
+type geoPos = {
+  data: Array<geoInfo>;
+};
+
+type geoInfo = {
+  latitude: string;
+  longitude: string;
+  locality: string;
+};
+
+export { Coordinate, Pothole, user, geoPos, geoInfo };

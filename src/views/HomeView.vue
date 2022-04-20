@@ -7,8 +7,8 @@
   </div>
 </template>
 
-<script>
-import { Vue } from "vue-property-decorator";
+<script lang="ts">
+import { Vue, Component } from "vue-property-decorator";
 
 export default class HomeView extends Vue {}
 </script>

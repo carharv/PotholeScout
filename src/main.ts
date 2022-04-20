@@ -10,7 +10,6 @@ Vue.use(SmartTable);
 Vue.config.productionTip = false;
 
 const app = initializeApp(firebaseConfig);
-export default app;
 
 new Vue({
   router,
