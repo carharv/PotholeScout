@@ -65,27 +65,7 @@ import {
 } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 import axios, { AxiosResponse } from "axios";
-
-type user = {
-  fname: string;
-  lname: string;
-  email: string;
-  phone: string;
-  zipcode: string;
-  lat: string;
-  long: string;
-  locality: string;
-};
-
-type geoPos = {
-  data: Array<geoInfo>;
-};
-
-type geoInfo = {
-  latitude: string;
-  longitude: string;
-  locality: string;
-};
+import { geoPos, user } from "@/datatypes";
 
 //Constants
 const db: Firestore = getFirestore(app);
