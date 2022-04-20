@@ -14,6 +14,8 @@ type Pothole = {
 type user = {
   fname: string;
   lname: string;
+  dotEmployee: boolean;
+  dotID: string;
   email: string;
   phone: string;
   zipcode: string;
