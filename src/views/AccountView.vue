@@ -17,10 +17,28 @@
           </b-card-text>
         </b-tab>
         <b-tab title="My Reports"
-          ><b-card-text
-            >This will show a table of the user's previous reports and their
-            status</b-card-text
-          ></b-tab
+          ><b-card-text>
+            <VTable :data="testUserReportArr">
+              <template #head>
+                <tr>
+                  <VTh sortKey="status">Status</VTh>
+                  <VTh sortKey="dateCreated">Date Reported</VTh>
+                  <VTh sortKey="dateRemoved">Date Fixed</VTh>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                </tr>
+              </template>
+              <template #body="{ rows }">
+                <tr v-for="row in rows" :key="row.id">
+                  <td>{{ row.status }}</td>
+                  <td>{{ row.dateCreated }}</td>
+                  <td>{{ row.dateRemoved }}</td>
+                  <td>{{ row.coordinates.lat }}</td>
+                  <td>{{ row.coordinates.lng }}</td>
+                </tr>
+              </template>
+            </VTable>
+          </b-card-text></b-tab
         >
       </b-tabs>
     </div>
@@ -31,7 +49,7 @@
 import { Vue, Component } from "vue-property-decorator";
 import { BTab, BTabs } from "bootstrap-vue";
 import { app } from "../firebaseConfig";
-import { geoPos, user } from "@/datatypes";
+import { geoPos, user, Pothole } from "@/datatypes";
 import {
   getAuth,
   onAuthStateChanged,
@@ -57,7 +75,6 @@ import {
 //Constants
 const db: Firestore = getFirestore(app);
 const userColl: CollectionReference = collection(db, "users");
-
 @Component({ components: { BTab, BTabs } })
 export default class AccountView extends Vue {
   testVar = "This is from the testVar";
@@ -72,10 +89,33 @@ export default class AccountView extends Vue {
     email: "",
     phone: "",
     zipcode: "",
-    lat: "",
-    long: "",
+    lat: "42.93066",
+    long: "-85.655173",
     locality: "",
   };
+  testUserReportArr: Array<Pothole> = [
+    {
+      creatorUID: "UID",
+      coordinates: { lat: "42.8", lng: "-85.5" },
+      status: "Reported",
+      dateCreated: "04/22/2022",
+      dateRemoved: "N/A",
+    },
+    {
+      creatorUID: "UID",
+      coordinates: { lat: "42.7", lng: "-85.4" },
+      status: "Reported",
+      dateCreated: "04/22/2022",
+      dateRemoved: "N/A",
+    },
+    {
+      creatorUID: "UID",
+      coordinates: { lat: "42.6", lng: "-85.3" },
+      status: "Fixed",
+      dateCreated: "04/22/2022",
+      dateRemoved: "N/A",
+    },
+  ];
   message = "";
   userInfoLoaded = false;
 
@@ -145,5 +185,18 @@ export default class AccountView extends Vue {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+table {
+  margin-top: 8px;
+  margin: auto;
+}
+
+table tr > td {
+  padding: 0.5em;
+}
+
+table th {
+  padding: 1em;
 }
 </style>
