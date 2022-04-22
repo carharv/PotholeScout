@@ -12,7 +12,7 @@
       >
         <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
         <LMarker
-          v-for="pothole in displayPotholeArr"
+          v-for="pothole in reportedPotholeArr"
           :key="pothole.id"
           :lat-lng="pothole.coordinates"
         >
@@ -30,6 +30,7 @@
           <th>UID</th>
           <th>lat</th>
           <th>lng</th>
+          <th>Fill Status</th>
         </template>
         <template #body="{ rows }">
           <tr v-for="row in rows" :key="row.id">
@@ -37,6 +38,8 @@
             <td>{{ row.creatorUID }}</td>
             <td>{{ row.coordinates.lat.slice(0, 8) }}</td>
             <td>{{ row.coordinates.lng.slice(0, 8) }}</td>
+            <td>{{row.filled}}</td>
+            <td><button @click="deleteCoords(row)">Delete</button></td>
           </tr>
         </template>
       </VTable>
@@ -68,8 +71,6 @@ import {
   DocumentReference,
   Firestore,
   setDoc,
-  getDocs,
-  query,
   getDoc,
   DocumentSnapshot,
 } from "firebase/firestore";
@@ -77,16 +78,15 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
-const db: Firestore = getFirestore(app);
-const userCollection: CollectionReference = collection(db, "potholes");
-
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class ClickableMap extends Vue {
+  db: Firestore = getFirestore(app);
+  userCollection: CollectionReference = collection(this.db, "potholes");
   mapCenter = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
   reportedPotholeArr: Array<Pothole> = [];
-  displayPotholeArr: Array<Pothole> = [];
+  tempPotholeArr: Array<Pothole> = [];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
@@ -99,15 +99,16 @@ export default class ClickableMap extends Vue {
         const uid = auth.currentUser.uid;
  
         // Use filesystem syntax for document path
-        const uid_doc : DocumentReference = doc(userCollection, uid);
+        const uid_doc : DocumentReference = doc(this.userCollection, uid);
  
         // Pushes only personal potholes into array
         getDoc(uid_doc).then((userSnapshot: DocumentSnapshot) => {
           if (userSnapshot.exists()){
-            this.displayPotholeArr = userSnapshot.data().potholeArray;
             this.reportedPotholeArr = userSnapshot.data().potholeArray;
           }
         });
+
+        this.tempPotholeArr = this.reportedPotholeArr;
        
       }
    
@@ -125,16 +126,6 @@ export default class ClickableMap extends Vue {
         const uid = auth.currentUser.uid;
  
         // this is to keep a seperate list of personal potholes.
-        this.displayPotholeArr.push({
-          creatorUID: uid,
-          dateCreated: Date(),
-          coordinates: {
-            lng: this.geoPos.lng!.toString(),
-            lat: this.geoPos.lat!.toString(),
-          },
-        });
-
-        // this is to keep a seperate list of personal potholes.
         this.reportedPotholeArr.push({
           creatorUID: uid,
           dateCreated: Date(),
@@ -142,6 +133,7 @@ export default class ClickableMap extends Vue {
             lng: this.geoPos.lng!.toString(),
             lat: this.geoPos.lat!.toString(),
           },
+          filled: "Not Filled",
         });
       }
   }
@@ -159,19 +151,40 @@ export default class ClickableMap extends Vue {
       const uid = auth.currentUser.uid;
 
       // Use filesystem syntax for document path
-      const uid_doc: DocumentReference = doc(userCollection, uid);
+      const uid_doc: DocumentReference = doc(this.userCollection, uid);
       // Add a new document with our own id
       setDoc(uid_doc, {
         userName: userInfo,
         userID: uid,
         potholeArray: this.reportedPotholeArr,
       });
+
+      this.tempPotholeArr = this.reportedPotholeArr;
     }
   }
 
-  /* removeMarker(index: number) {
-    this.markersArr.splice(index, 1);
-  } */
+  deleteCoords(row: Pothole): void {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user && auth.currentUser != null) {
+      const userInfo = `${user.displayName}`;
+      const uid = auth.currentUser.uid;
+
+      let index = this.reportedPotholeArr.indexOf(row);
+      this.reportedPotholeArr.splice(index,1);
+      let index2 = this.tempPotholeArr.indexOf(row);
+      this.tempPotholeArr.splice(index,1);
+
+      // Use filesystem syntax for document path
+      const uid_doc: DocumentReference = doc(this.userCollection, uid);
+
+      getDoc(uid_doc).then((userSnapshot: DocumentSnapshot) => {
+          if (userSnapshot.exists()){
+            userSnapshot.data().update({potholeArray: this.tempPotholeArr});
+          }
+        });
+    }
+  }
 
 }
 </script>

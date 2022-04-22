@@ -9,6 +9,7 @@ type Pothole = {
   dateCreated?: string;
   dateRemoved?: Date;
   coordinates: Coordinate;
+  filled: string;
 };
 
 export { Coordinate, Pothole };
