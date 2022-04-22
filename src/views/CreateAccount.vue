@@ -64,7 +64,7 @@ import {
   collection,
   CollectionReference,
   doc,
-  addDoc,
+  setDoc,
   DocumentReference,
   Firestore,
   getFirestore,
@@ -168,7 +168,7 @@ export default class SignUpView extends Vue {
     this.createUserObj();
     this.uid = this.auth?.currentUser?.uid;
     this.userDoc = doc(userInfoColl, this.uid);
-    addDoc(userInfoColl, { userInfo: this.userInfoObj }).catch((err: any) => {
+    setDoc(this.userDoc, { userInfo: this.userInfoObj }).catch((err: any) => {
       console.log(`addDoc Error: ${err}`);
     });
   }

@@ -1,14 +1,7 @@
 <template>
   <div>
-    <nav>
-      <router-link to="/home">Home</router-link>
-      <router-link to="/map">Map</router-link>
-    </nav>
-    <h1>This is from Map.vue Component</h1>
-
     <div id="map">
       <div id="heatmap" v-show="heatmapMode">
-        <h4>Heatmap View</h4>
         <LMap
           style="height: 500px; width: 800px"
           :zoom="13"
@@ -28,7 +21,6 @@
         </LMap>
       </div>
       <div id="singlePointView" v-show="!heatmapMode">
-        <h4>Single Point View</h4>
         <LMap
           style="height: 500px; width: 800px"
           :zoom="13"
@@ -46,7 +38,7 @@
         </LMap>
       </div>
     </div>
-    <div id="tableDiv" v-show="displayPotholeArr[0]">
+    <div id="tableDiv" v-show="displayPotholeArr[0] && showReportedCoords">
       <h2>Reported Coordinates</h2>
       <VTable :data="displayPotholeArr">
         <template #head>
@@ -87,8 +79,9 @@ import { Pothole } from "@/datatypes";
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class DisplayMap extends Vue {
   @Prop() displayPotholeArr!: Array<Pothole>;
-  @Prop() mapCenter!: Array<number>;
+  @Prop() mapCenter!: Array<string>;
   @Prop() heatmapMode!: boolean;
+  @Prop() showReportedCoords!: boolean;
 
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";

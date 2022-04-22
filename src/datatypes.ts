@@ -6,9 +6,10 @@ type Coordinate = {
 type Pothole = {
   creatorUID: string;
   deletorUID?: string;
-  dateCreated?: string;
-  dateRemoved?: Date;
+  dateCreated: string;
+  dateRemoved?: string;
   coordinates: Coordinate;
+  status?: string;
 };
 
 type user = {
