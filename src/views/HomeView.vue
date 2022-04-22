@@ -2,7 +2,6 @@
   <div>
     <nav>
       <router-link to="/home">Home</router-link>
-      <router-link to="/map">Map</router-link>
       <router-link to="/account">Account</router-link>
     </nav>
     <h1>This heading is from HomeView.vue</h1>
