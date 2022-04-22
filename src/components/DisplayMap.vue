@@ -64,7 +64,7 @@
 /* 
 To use this component you must first import the component
 
-import ClickableMap from "../components/DisplayMap.vue";
+import DisplayMap from "../components/DisplayMap.vue";
 @Component({ components: { DisplayMap } })
 
 Then you must supply the component with the following props: displayPotholeArr (array of type pothole),
