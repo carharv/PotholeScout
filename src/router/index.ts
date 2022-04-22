@@ -5,6 +5,7 @@ import HomeView from "../views/HomeView.vue";
 import LoginScreen from "../views/LoginScreen.vue";
 import CreateAccount from "../views/CreateAccount.vue";
 import Account from "../views/AccountView.vue";
+import DotReview from "../views/DotReview.vue";
 
 Vue.use(VueRouter);
 
@@ -33,6 +34,11 @@ const routes: Array<RouteConfig> = [
     path: "/map",
     name: "map",
     component: Map,
+  },
+  {
+    path: "/dot/review",
+    name: "review",
+    component: DotReview,
   },
 ];
 

@@ -2,6 +2,9 @@
   <div>
     <nav>
       <router-link to="/home">Home</router-link>
+      <router-link v-if="userInfoObj.dotEmployee" to="/dot/review"
+        >Review Reports</router-link
+      >
       <router-link to="/account">Account</router-link>
     </nav>
     <h1 v-show="userInfoLoaded">Welcome, {{ userInfoObj.fname }}</h1>
@@ -11,7 +14,7 @@
     <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
     <div id="accountTabs">
       <b-tabs pills vertical>
-        <b-tab title="Profile">
+        <b-tab title="Profile" active>
           <b-card-text>
             <h3>Update your profile and then click Save</h3>
             <label for="fname">First Name</label>
@@ -27,7 +30,7 @@
             <button @click="storeUserInfo">Save</button>
           </b-card-text>
         </b-tab>
-        <b-tab title="Settings" active>
+        <b-tab title="Settings">
           <b-card-text>
             <button @click="resetPassword">Reset Password</button>
             <button @click="signOut">Sign Out</button>
@@ -67,7 +70,6 @@
 import { Vue, Component } from "vue-property-decorator";
 import { BTab, BTabs } from "bootstrap-vue";
 import { app } from "../firebaseConfig";
-import SignUpView from "./CreateAccount.vue";
 import { geoPos, user, Pothole } from "@/datatypes";
 import {
   getAuth,
@@ -94,7 +96,7 @@ import {
 //Constants
 const db: Firestore = getFirestore(app);
 const userInfoColl: CollectionReference = collection(db, "users");
-@Component({ components: { BTab, BTabs, SignUpView } })
+@Component({ components: { BTab, BTabs } })
 export default class AccountView extends Vue {
   testVar = "This is from the testVar";
   uid: string | undefined = "";
