@@ -2,15 +2,11 @@
   <div>
     <nav>
       <router-link to="/home">Home</router-link>
-      <router-link to="/report">Report</router-link>
       <router-link v-if="dotEmployee" to="/dot/review"
         >Review Reports</router-link
       >
       <router-link to="/account">Account</router-link>
     </nav>
-    <h1>This heading is from HomeView.vue</h1>
-    <DisplayMap/>
-    <h2>insert charts here</h2>
   </div>
 </template>
 
@@ -28,15 +24,13 @@ import {
   getFirestore,
 } from "firebase/firestore";
 import { app } from "../firebaseConfig";
-import { component } from "vue/types/umd";
-import DisplayMap from "../components/DiplayMap.vue";
 
 //Constants
 const db: Firestore = getFirestore(app);
 const userInfoColl: CollectionReference = collection(db, "users");
 
-@Component  ({ components: { DisplayMap } })
-export default class HomeView extends Vue {
+@Component
+export default class DotReview extends Vue {
   dotEmployee = false;
   uid: string | undefined = "";
   userDoc!: DocumentReference;

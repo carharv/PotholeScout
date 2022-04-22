@@ -1,10 +1,7 @@
 <template>
   <div>
-    <h1>This is from Map.vue Component</h1>
-
     <div id="map">
       <div id="heatmap" v-show="heatmapMode">
-        <h4>Heatmap View</h4>
         <LMap
           style="height: 500px; width: 800px"
           :zoom="13"
@@ -24,7 +21,6 @@
         </LMap>
       </div>
       <div id="singlePointView" v-show="!heatmapMode">
-        <h4>Single Point View</h4>
         <LMap
           style="height: 500px; width: 800px"
           :zoom="13"
@@ -42,7 +38,7 @@
         </LMap>
       </div>
     </div>
-    <div id="tableDiv" v-show="displayPotholeArr[0]">
+    <div id="tableDiv" v-show="displayPotholeArr[0] && showReportedCoords">
       <h2>Reported Coordinates</h2>
       <VTable :data="displayPotholeArr">
         <template #head>
@@ -68,7 +64,7 @@
 /* 
 To use this component you must first import the component
 
-import ClickableMap from "../components/DisplayMap.vue";
+import DisplayMap from "../components/DisplayMap.vue";
 @Component({ components: { DisplayMap } })
 
 Then you must supply the component with the following props: displayPotholeArr (array of type pothole),
