@@ -6,9 +6,28 @@
       <router-link to="/account">Account</router-link>
     </nav>
     <h1 v-show="userInfoLoaded">Welcome, {{ userInfoObj.fname }}</h1>
+    <h2 v-if="userInfoObj.dotEmployee">
+      DOT Employee ID# {{ userInfoObj.dotID }}
+    </h2>
     <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
     <div id="accountTabs">
       <b-tabs pills vertical>
+        <b-tab title="Profile">
+          <b-card-text>
+            <h3>Update your profile and then click Save</h3>
+            <label for="fname">First Name</label>
+            <input type="text" id="fname" v-model.lazy="userInfoObj.fname" />
+            <label for="lname">Last Name</label>
+            <input type="text" id="lname" v-model="userInfoObj.lname" />
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" v-model="userInfoObj.phone" />
+            <label for="zipcode">Zipcode</label>
+            <input type="text" id="zipcode" v-model="userInfoObj.zipcode" />
+            <label for="email">Email</label>
+            <input type="text" id="email" v-model="userInfoObj.email" />
+            <button @click="storeUserInfo">Save</button>
+          </b-card-text>
+        </b-tab>
         <b-tab title="Settings" active>
           <b-card-text>
             <button @click="resetPassword">Reset Password</button>
@@ -49,6 +68,7 @@
 import { Vue, Component } from "vue-property-decorator";
 import { BTab, BTabs } from "bootstrap-vue";
 import { app } from "../firebaseConfig";
+import SignUpView from "./CreateAccount.vue";
 import { geoPos, user, Pothole } from "@/datatypes";
 import {
   getAuth,
@@ -74,8 +94,8 @@ import {
 
 //Constants
 const db: Firestore = getFirestore(app);
-const userColl: CollectionReference = collection(db, "users");
-@Component({ components: { BTab, BTabs } })
+const userInfoColl: CollectionReference = collection(db, "users");
+@Component({ components: { BTab, BTabs, SignUpView } })
 export default class AccountView extends Vue {
   testVar = "This is from the testVar";
   uid: string | undefined = "";
@@ -122,7 +142,7 @@ export default class AccountView extends Vue {
   mounted() {
     this.auth = getAuth();
     this.uid = this.auth?.currentUser?.uid;
-    this.userDoc = doc(userColl, this.uid);
+    this.userDoc = doc(userInfoColl, this.uid);
 
     this.getUserInfo();
   }
@@ -134,6 +154,17 @@ export default class AccountView extends Vue {
       }
     });
     this.userInfoLoaded = true;
+  }
+
+  //This function stores the user object in firestore
+  storeUserInfo(): void {
+    setDoc(this.userDoc, { userInfo: this.userInfoObj })
+      .then(() => {
+        this.showMessage(`Your profile has been updated.`);
+      })
+      .catch((err: any) => {
+        console.log(`addDoc Error: ${err}`);
+      });
   }
 
   resetPassword() {
