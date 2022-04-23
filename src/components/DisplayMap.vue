@@ -61,16 +61,6 @@
 </template>
 
 <script lang="ts">
-/*
-To use this component you must first import the component
-
-import DisplayMap from "../components/DisplayMap.vue";
-@Component({ components: { DisplayMap } })
-
-Then you must supply the component with the following props: displayPotholeArr (array of type pothole),
- mapCenter (array of number), and heatmapMode (boolean)
-*/
-
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -81,14 +71,9 @@ import {
   doc,
   DocumentReference,
   Firestore,
-  setDoc,
-  getDocs,
-  query,
-  getDoc,
   DocumentSnapshot,
   onSnapshot,
 } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
@@ -112,6 +97,7 @@ export default class DisplayMap extends Vue {
     this.getPotholes();
   }
 
+  //This function listens for updates
   getPotholes(): void {
     onSnapshot(allReportsDoc, (reports: DocumentSnapshot) => {
       if (reports.exists()) {

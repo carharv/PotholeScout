@@ -39,22 +39,10 @@
 </template>
 
 <script lang="ts">
-/*
-To use this component you must first import the component
-
-import ClickableMap from "../components/ClickableMap.vue";
-@Component({ components: { ClickableMap } })
-
-Then you must supply the component with the following props: uid, existingPotholeArr, mapCenter
-
-In return, this component will emit the full reportedPotholeArr each time a user clicks the map.
-Use @reportedArrUpdated in the params when using this component
-*/
-
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Pothole } from "../datatypes";
+import { Pothole, PotholeContainer } from "../datatypes";
 import {
   collection,
   CollectionReference,
@@ -62,9 +50,6 @@ import {
   DocumentReference,
   Firestore,
   setDoc,
-  getDoc,
-  query,
-  getDocs,
   DocumentSnapshot,
   onSnapshot,
 } from "firebase/firestore";
@@ -74,11 +59,6 @@ import { app } from "../firebaseConfig";
 const db: Firestore = getFirestore(app);
 const potholeCollection: CollectionReference = collection(db, "potholes");
 const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
-
-type PotholeContainer = {
-  pothole: Pothole;
-  originalIndex: string;
-};
 
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class DOTMap extends Vue {
@@ -96,15 +76,20 @@ export default class DOTMap extends Vue {
     this.getPotholes();
   }
 
+  //This function retrieves all unfilled potholes and listens for updates
   getPotholes(): void {
     onSnapshot(allReportsDoc, (reports: DocumentSnapshot) => {
       if (reports.exists()) {
         this.allReportsArr = reports.data().potholeArray;
+        //Clear the displayArr and potholeContainerArr when the data is updated
         this.displayArr.splice(0);
         this.potholeContainerArr.splice(0);
 
+        //Loop through the allReportsArr to find unfilled potholes
         for (let index in this.allReportsArr) {
           if (this.allReportsArr[index].filled !== "Filled") {
+            //If the pothole is unfilled then psuh it to the displayArr and also
+            //Push it to the potholeContainerArr to store the pothole's original index
             this.displayArr.push(this.allReportsArr[index]);
 
             this.potholeContainerArr.push({
@@ -113,20 +98,24 @@ export default class DOTMap extends Vue {
             });
           }
         }
-
         console.log("Pothole Array has been updated");
       }
     });
   }
 
+  //This function is used to resolve a pothole report
   resolvePothole(index: string) {
     let indexNum = parseInt(index);
+
+    //Update the pothole status to filled and remove it from the displayArr
     this.allReportsArr[indexNum].filled = "Filled";
     this.displayArr.splice(indexNum, 1);
 
+    //Save the array to firestore
     this.saveArray();
   }
 
+  //This function simply saves the allReportsArr to firestore
   saveArray() {
     setDoc(allReportsDoc, { potholeArray: this.allReportsArr });
   }
