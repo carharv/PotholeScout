@@ -7,11 +7,14 @@
       >
       <router-link to="/account">Account</router-link>
     </nav>
+    <h1>This heading is from HomeView.vue</h1>
+    <DOTMap/>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
+import DOTMap from "../components/DOTMap.vue";
 import { getAuth, Auth } from "firebase/auth";
 import {
   collection,
@@ -24,12 +27,13 @@ import {
   getFirestore,
 } from "firebase/firestore";
 import { app } from "../firebaseConfig";
+import { component } from "vue/types/umd";
 
 //Constants
 const db: Firestore = getFirestore(app);
 const userInfoColl: CollectionReference = collection(db, "users");
 
-@Component
+@Component  ({components:{DOTMap}}) 
 export default class DotReview extends Vue {
   dotEmployee = false;
   uid: string | undefined = "";

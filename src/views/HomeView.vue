@@ -16,6 +16,7 @@
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
+import DisplayMap from "../components/DisplayMap.vue";
 import { getAuth, Auth } from "firebase/auth";
 import {
   collection,
@@ -28,8 +29,7 @@ import {
   getFirestore,
 } from "firebase/firestore";
 import { app } from "../firebaseConfig";
-import { component } from "vue/types/umd";
-import DisplayMap from "../components/DiplayMap.vue";
+
 
 //Constants
 const db: Firestore = getFirestore(app);

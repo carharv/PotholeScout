@@ -42,7 +42,7 @@
             <VTable :data="testUserReportArr">
               <template #head>
                 <tr>
-                  <VTh sortKey="status">Status</VTh>
+                  <VTh sortKey="filled">Status</VTh>
                   <VTh sortKey="dateCreated">Date Reported</VTh>
                   <VTh sortKey="dateRemoved">Date Fixed</VTh>
                   <th>Latitude</th>
@@ -51,7 +51,7 @@
               </template>
               <template #body="{ rows }">
                 <tr v-for="row in rows" :key="row.id">
-                  <td>{{ row.status }}</td>
+                  <td>{{ row.filled }}</td>
                   <td>{{ row.dateCreated }}</td>
                   <td>{{ row.dateRemoved }}</td>
                   <td>{{ row.coordinates.lat }}</td>
@@ -118,23 +118,23 @@ export default class AccountView extends Vue {
     {
       creatorUID: "UID",
       coordinates: { lat: "42.8", lng: "-85.5" },
-      status: "Reported",
       dateCreated: "04/22/2022",
       dateRemoved: "N/A",
+      filled: "Reported",
     },
     {
       creatorUID: "UID",
       coordinates: { lat: "42.7", lng: "-85.4" },
-      status: "Reported",
       dateCreated: "04/22/2022",
       dateRemoved: "N/A",
+      filled: "Reported",
     },
     {
       creatorUID: "UID",
       coordinates: { lat: "42.6", lng: "-85.3" },
-      status: "Fixed",
       dateCreated: "04/22/2022",
       dateRemoved: "N/A",
+      filled: "Fixed",
     },
   ];
   message = "";

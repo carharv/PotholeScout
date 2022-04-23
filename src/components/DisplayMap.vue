@@ -116,7 +116,7 @@ export default class DisplayMap extends Vue {
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
-      this.displayPotholeArr = doc.data().potholeArray;
+      this.displayPotholeArr.push(...doc.data().potholeArray);
     });
   }
 }

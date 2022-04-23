@@ -173,7 +173,7 @@ export default class ClickableMap extends Vue {
       let index = this.reportedPotholeArr.indexOf(row);
       this.reportedPotholeArr.splice(index,1);
       let index2 = this.tempPotholeArr.indexOf(row);
-      this.tempPotholeArr.splice(index,1);
+      this.tempPotholeArr.splice(index2,1);
 
       // Use filesystem syntax for document path
       const uid_doc: DocumentReference = doc(this.userCollection, uid);
