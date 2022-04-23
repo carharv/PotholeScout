@@ -55,6 +55,7 @@ import {
   setDoc,
   DocumentSnapshot,
   onSnapshot,
+  getDoc,
 } from "firebase/firestore";
 import { getAuth, Auth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -62,6 +63,7 @@ import { app } from "../firebaseConfig";
 
 const db: Firestore = getFirestore(app);
 const potholeCollection: CollectionReference = collection(db, "potholes");
+const userInfoColl: CollectionReference = collection(db, "users");
 const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
 
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
@@ -71,6 +73,7 @@ export default class ClickableMap extends Vue {
   userReportsArr: Array<Pothole> = [];
   allReportsArr: Array<Pothole> = [];
   displayPotholeArr: Array<Pothole> = [];
+  filledPotholeArr: Array<Pothole> = [];
   allReports: any;
   showUserOnly = false;
   initialArrLen = 0;
@@ -79,6 +82,8 @@ export default class ClickableMap extends Vue {
   //Firebase user variables
   uid = "";
   auth: Auth | null = null;
+  userDoc!: DocumentReference;
+  uidName = "";
 
   //Map variables
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -92,12 +97,25 @@ export default class ClickableMap extends Vue {
     //Get auth and uid
     this.auth = getAuth();
     this.uid = this.auth?.currentUser!.uid;
+    this.userDoc = doc(userInfoColl, this.uid);
+
+    //Get the user's name so that it can be attached to the report
+    this.getUserInfo();
 
     //Call the getPotholes function to load existing potholes and listen for updates
     this.getPotholes();
 
     //Display allReports by default
     this.displayPotholeArr = this.allReportsArr;
+  }
+
+  getUserInfo() {
+    getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
+      if (userData.exists()) {
+        this.uidName =
+          userData.data().userInfo.fname + " " + userData.data().userInfo.lname;
+      }
+    });
   }
 
   //Function to load all potholes and listen for updates
@@ -113,6 +131,8 @@ export default class ClickableMap extends Vue {
         for (var report of this.allReports.potholeArray) {
           if (report.filled !== "Filled") {
             this.allReportsArr.push(report);
+          } else {
+            this.filledPotholeArr.push(report);
           }
         }
 
@@ -152,17 +172,19 @@ export default class ClickableMap extends Vue {
         lat: this.geoPos.lat!.toString(),
       },
       filled: "Not Filled",
+      creatorName: this.uidName,
     });
 
     //Also push the user's report to the allReportsArr
     this.allReportsArr.push({
       creatorUID: this.uid,
-      dateCreated: Date(),
+      dateCreated: Date().slice(0, 25),
       coordinates: {
         lng: this.geoPos.lng!.toString(),
         lat: this.geoPos.lat!.toString(),
       },
       filled: "Not Filled",
+      creatorName: this.uidName,
     });
   }
 
@@ -173,6 +195,10 @@ export default class ClickableMap extends Vue {
 
   //This function saves the allReportsArr
   submitReport(): void {
+    this.filledPotholeArr.forEach((obj: Pothole) =>
+      this.allReportsArr.push(Object.assign({}, obj))
+    );
+
     setDoc(allReportsDoc, { potholeArray: this.allReportsArr });
 
     this.pushToHome();
@@ -183,7 +209,16 @@ export default class ClickableMap extends Vue {
     //Since the target report in userReportsArr and allReportsArr have different indexes
     //we need use the initialArrLen variable to keep track
     let userIndex = this.userReportsArr.indexOf(row);
-    let allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen;
+    let allIndex;
+
+    //Index changes based on whether or not there are any filled potholes
+    //Not sure why but this makes things work
+    if (!this.filledPotholeArr[0]) {
+      allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen;
+    } else {
+      allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen - 1;
+    }
+
     this.userReportsArr.splice(userIndex, 1);
     this.allReportsArr.splice(allIndex, 1);
   }

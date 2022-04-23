@@ -40,12 +40,12 @@
         </b-tab>
         <b-tab title="My Reports"
           ><b-card-text>
-            <VTable :data="testUserReportArr">
+            <VTable :data="userReportArr">
               <template #head>
                 <tr>
                   <VTh sortKey="filled">Status</VTh>
                   <VTh sortKey="dateCreated">Date Reported</VTh>
-                  <VTh sortKey="dateRemoved">Date Fixed</VTh>
+                  <VTh sortKey="dateRemoved">Date Filled</VTh>
                   <th>Latitude</th>
                   <th>Longitude</th>
                 </tr>
@@ -55,8 +55,8 @@
                   <td>{{ row.filled }}</td>
                   <td>{{ row.dateCreated }}</td>
                   <td>{{ row.dateRemoved }}</td>
-                  <td>{{ row.coordinates.lat }}</td>
-                  <td>{{ row.coordinates.lng }}</td>
+                  <td>{{ row.coordinates.lat.slice(0, 6) }}</td>
+                  <td>{{ row.coordinates.lng.slice(0, 6) }}</td>
                 </tr>
               </template>
             </VTable>
@@ -71,11 +71,9 @@
 import { Vue, Component } from "vue-property-decorator";
 import { BTab, BTabs } from "bootstrap-vue";
 import { app } from "../firebaseConfig";
-import { geoPos, user, Pothole } from "@/datatypes";
+import { user, Pothole } from "@/datatypes";
 import {
   getAuth,
-  onAuthStateChanged,
-  User,
   Auth,
   signOut,
   deleteUser,
@@ -92,11 +90,15 @@ import {
   getFirestore,
   setDoc,
   deleteDoc,
+  onSnapshot,
 } from "firebase/firestore";
 
 //Constants
 const db: Firestore = getFirestore(app);
 const userInfoColl: CollectionReference = collection(db, "users");
+const potholeCollection: CollectionReference = collection(db, "potholes");
+const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
+
 @Component({ components: { BTab, BTabs } })
 export default class AccountView extends Vue {
   testVar = "This is from the testVar";
@@ -115,29 +117,7 @@ export default class AccountView extends Vue {
     long: "-85.655173",
     locality: "",
   };
-  testUserReportArr: Array<Pothole> = [
-    {
-      creatorUID: "UID",
-      coordinates: { lat: "42.8", lng: "-85.5" },
-      dateCreated: "04/22/2022",
-      dateRemoved: "N/A",
-      filled: "Reported",
-    },
-    {
-      creatorUID: "UID",
-      coordinates: { lat: "42.7", lng: "-85.4" },
-      dateCreated: "04/22/2022",
-      dateRemoved: "N/A",
-      filled: "Reported",
-    },
-    {
-      creatorUID: "UID",
-      coordinates: { lat: "42.6", lng: "-85.3" },
-      dateCreated: "04/22/2022",
-      dateRemoved: "N/A",
-      filled: "Fixed",
-    },
-  ];
+  userReportArr: Array<Pothole> = [];
   message = "";
   userInfoLoaded = false;
 
@@ -147,6 +127,21 @@ export default class AccountView extends Vue {
     this.userDoc = doc(userInfoColl, this.uid);
 
     this.getUserInfo();
+    this.getPotholes();
+  }
+
+  //This function listens for updates
+  getPotholes(): void {
+    onSnapshot(allReportsDoc, (reports: DocumentSnapshot) => {
+      if (reports.exists()) {
+        for (let report of reports.data().potholeArray) {
+          if (report.creatorUID === this.uid) {
+            this.userReportArr.push(report);
+          }
+        }
+        console.log("Pothole Array has been updated");
+      }
+    });
   }
 
   getUserInfo() {

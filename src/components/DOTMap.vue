@@ -14,15 +14,15 @@
       <VTable :data="potholeContainerArr">
         <template #head>
           <th>Date</th>
-          <th>UID</th>
-          <th>lat</th>
-          <th>lng</th>
+          <th>Reported By</th>
+          <th>Lat</th>
+          <th>Lng</th>
           <th>Fill Status</th>
         </template>
         <template #body="{ rows }">
           <tr v-for="row in rows" :key="row.id">
             <td>{{ row.pothole.dateCreated }}</td>
-            <td>{{ row.pothole.creatorUID }}</td>
+            <td>{{ row.pothole.creatorName }}</td>
             <td>{{ row.pothole.coordinates.lat.slice(0, 8) }}</td>
             <td>{{ row.pothole.coordinates.lng.slice(0, 8) }}</td>
             <td>{{ row.pothole.filled }}</td>
@@ -84,6 +84,7 @@ export default class DOTMap extends Vue {
   displayArr: Array<Pothole> = [];
   potholeContainerArr: Array<PotholeContainer> = [];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  testVar = "";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
 
@@ -98,7 +99,7 @@ export default class DOTMap extends Vue {
   }
 
   //This function retrieves all unfilled potholes and listens for updates
-  getPotholes(): void {
+  getPotholes() {
     onSnapshot(allReportsDoc, (reports: DocumentSnapshot) => {
       if (reports.exists()) {
         this.allReportsArr = reports.data().potholeArray;
@@ -150,6 +151,22 @@ export default class DOTMap extends Vue {
       }
     });
   }
+
+  /*   async getNameFromUID(tempUid: string) {
+    let tempDoc: DocumentReference;
+    let tempFname!: string;
+    let tempLname!: string;
+    tempDoc = doc(userInfoColl, tempUid);
+
+    await getDoc(tempDoc).then((userData: DocumentSnapshot) => {
+      if (userData.exists()) {
+        tempFname = userData.data().userInfo.fname;
+        tempLname = userData.data().userInfo.lname;
+      }
+    });
+
+    return tempFname + " " + tempLname;
+  } */
 }
 </script>
 
