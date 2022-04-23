@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts">
-/* 
+/*
 To use this component you must first import the component
 
 import DisplayMap from "../components/DisplayMap.vue";
@@ -86,17 +86,18 @@ import {
   query,
   getDoc,
   DocumentSnapshot,
+  onSnapshot,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
 const db: Firestore = getFirestore(app);
-const userCollection: CollectionReference = collection(db, "potholes");
+const potholeCollection: CollectionReference = collection(db, "potholes");
+const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
 
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class DisplayMap extends Vue {
-  
   geoPos: { lat?: number; lng?: number } = {};
   displayPotholeArr: Array<Pothole> = [];
   heatmapMode = true;
@@ -106,17 +107,17 @@ export default class DisplayMap extends Vue {
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
   canEditMap = false;
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
-  
 
-  async mounted(): Promise<void> {
-    
-    const q = query(collection(db, "potholes"));
+  mounted() {
+    this.getPotholes();
+  }
 
-    // pushes all potholes into an array
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      this.displayPotholeArr.push(...doc.data().potholeArray);
+  getPotholes(): void {
+    onSnapshot(allReportsDoc, (reports: DocumentSnapshot) => {
+      if (reports.exists()) {
+        this.displayPotholeArr = reports.data().potholeArray;
+        console.log("Pothole Array has been updated");
+      }
     });
   }
 }

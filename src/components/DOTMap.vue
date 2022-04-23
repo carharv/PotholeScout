@@ -1,28 +1,17 @@
 <template>
   <div>
-    <h1>This is from ClickableMap.vue Component</h1>
-
     <div id="map">
-      <h4>Single Point View</h4>
-      <LMap
-        style="height: 500px; width: 800px"
-        :zoom="13"
-        :center="mapCenter"
-      >
+      <LMap style="height: 500px; width: 800px" :zoom="13" :center="mapCenter">
         <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
-        <LMarker
-          v-for="p in displayPotholeArr"
-          :key="p.id"
-          :lat-lng="p.coordinates"
-        >
+        <LMarker v-for="p in displayArr" :key="p.id" :lat-lng="p.coordinates">
           <LIcon iconUrl="https://ik.imagekit.io/carharv/coneIcon"> </LIcon>
           ></LMarker
         >
       </LMap>
     </div>
     <div id="tableDiv">
-      <h2>Reported Potholes</h2>
-      <VTable :data="displayPotholeArr">
+      <h2>Unfilled Potholes</h2>
+      <VTable :data="potholeContainerArr">
         <template #head>
           <th>Date</th>
           <th>UID</th>
@@ -32,12 +21,16 @@
         </template>
         <template #body="{ rows }">
           <tr v-for="row in rows" :key="row.id">
-            <td>{{ row.dateCreated }}</td>
-            <td>{{ row.creatorUID }}</td>
-            <td>{{ row.coordinates.lat.slice(0, 8) }}</td>
-            <td>{{ row.coordinates.lng.slice(0, 8) }}</td>
-            <td>{{row.filled}}</td>
-            <td><button @click="resolveCoords(row)">Resolve</button></td>
+            <td>{{ row.pothole.dateCreated }}</td>
+            <td>{{ row.pothole.creatorUID }}</td>
+            <td>{{ row.pothole.coordinates.lat.slice(0, 8) }}</td>
+            <td>{{ row.pothole.coordinates.lng.slice(0, 8) }}</td>
+            <td>{{ row.pothole.filled }}</td>
+            <td>
+              <button @click="resolvePothole(row.originalIndex)">
+                Resolve
+              </button>
+            </td>
           </tr>
         </template>
       </VTable>
@@ -46,7 +39,7 @@
 </template>
 
 <script lang="ts">
-/* 
+/*
 To use this component you must first import the component
 
 import ClickableMap from "../components/ClickableMap.vue";
@@ -73,69 +66,70 @@ import {
   query,
   getDocs,
   DocumentSnapshot,
+  onSnapshot,
 } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
+const db: Firestore = getFirestore(app);
+const potholeCollection: CollectionReference = collection(db, "potholes");
+const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
+
+type PotholeContainer = {
+  pothole: Pothole;
+  originalIndex: string;
+};
+
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class DOTMap extends Vue {
-  db: Firestore = getFirestore(app);
-  userCollection: CollectionReference = collection(this.db, "potholes");
   mapCenter = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
-  displayPotholeArr: Array<Pothole> = [];
+  allReportsArr: Array<Pothole> = [];
+  displayArr: Array<Pothole> = [];
+  potholeContainerArr: Array<PotholeContainer> = [];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
 
-  async mounted(): Promise<void> {
-    const q = query(collection(this.db, "potholes"));
-    let temp : Array<Pothole> = [];
+  mounted() {
+    this.getPotholes();
+  }
 
-    // pushes all potholes into an array
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-        temp.push(...doc.data().potholeArray);
+  getPotholes(): void {
+    onSnapshot(allReportsDoc, (reports: DocumentSnapshot) => {
+      if (reports.exists()) {
+        this.allReportsArr = reports.data().potholeArray;
+        this.displayArr.splice(0);
+        this.potholeContainerArr.splice(0);
+
+        for (let index in this.allReportsArr) {
+          if (this.allReportsArr[index].filled !== "Filled") {
+            this.displayArr.push(this.allReportsArr[index]);
+
+            this.potholeContainerArr.push({
+              pothole: this.allReportsArr[index],
+              originalIndex: index,
+            });
+          }
+        }
+
+        console.log("Pothole Array has been updated");
+      }
     });
-
-    // doc.data() is never undefined for query doc snapshots
-        temp.forEach( value => {
-            if(value.filled != "Resolved"){
-                this.displayPotholeArr.push(value);
-            }
-        });
-   
   }
 
-  async resolveCoords( p : Pothole): Promise<void> {
+  resolvePothole(index: string) {
+    let indexNum = parseInt(index);
+    this.allReportsArr[indexNum].filled = "Filled";
+    this.displayArr.splice(indexNum, 1);
 
-    let arr : Array<Pothole> = [];
-
-    const s: string = p.creatorUID;
-
-    const docRef = doc(this.db, "potholes", s);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-        arr.push(docSnap.data().potholeArray);
-        arr.forEach(potDoc => {
-            if(potDoc == p){
-                potDoc.filled = "Resolved";
-            }
-        });
-        console.log(docSnap.data());
-        //docSnap.data().update({potholeArray : arr} );
-        //doc(this.db, "potholes", p.creatorUID).data().update({potholeArray : arr});
-    } else {
-    // doc.data() will be undefined in this case
-        console.log("No such document!");
-    }
-
-    let index = this.displayPotholeArr.indexOf(p);
-    this.displayPotholeArr.splice(index,1);
+    this.saveArray();
   }
 
+  saveArray() {
+    setDoc(allReportsDoc, { potholeArray: this.allReportsArr });
+  }
 }
 </script>
 

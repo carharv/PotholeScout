@@ -1,9 +1,6 @@
 <template>
   <div>
-    <h1>This is from ClickableMap.vue Component</h1>
-
     <div id="map">
-      <h4>Single Point View</h4>
       <LMap
         style="height: 500px; width: 800px"
         :zoom="13"
@@ -12,7 +9,7 @@
       >
         <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
         <LMarker
-          v-for="pothole in reportedPotholeArr"
+          v-for="pothole in displayPotholeArr"
           :key="pothole.id"
           :lat-lng="pothole.coordinates"
         >
@@ -21,25 +18,22 @@
         >
       </LMap>
     </div>
-    <button @click="saveCoords">Save Locations</button>
-    <div id="tableDiv" v-show="reportedPotholeArr[0]">
-      <h2>Reported Potholes</h2>
-      <VTable :data="reportedPotholeArr">
+    <button @click="submitReport">Submit Report</button>
+    <button @click="toggleView">Toggle all reports</button>
+    <div id="tableDiv" v-show="userReportsArr[0]">
+      <h2>My Pending Report</h2>
+      <VTable :data="userReportsArr">
         <template #head>
           <th>Date</th>
-          <th>UID</th>
-          <th>lat</th>
-          <th>lng</th>
-          <th>Fill Status</th>
+          <th>Lat</th>
+          <th>Lng</th>
         </template>
         <template #body="{ rows }">
           <tr v-for="row in rows" :key="row.id">
             <td>{{ row.dateCreated }}</td>
-            <td>{{ row.creatorUID }}</td>
             <td>{{ row.coordinates.lat.slice(0, 8) }}</td>
             <td>{{ row.coordinates.lng.slice(0, 8) }}</td>
-            <td>{{row.filled}}</td>
-            <td><button @click="deleteCoords(row)">Delete</button></td>
+            <td><button @click="removeReport(row)">Remove</button></td>
           </tr>
         </template>
       </VTable>
@@ -48,18 +42,6 @@
 </template>
 
 <script lang="ts">
-/* 
-To use this component you must first import the component
-
-import ClickableMap from "../components/ClickableMap.vue";
-@Component({ components: { ClickableMap } })
-
-Then you must supply the component with the following props: uid, existingPotholeArr, mapCenter
-
-In return, this component will emit the full reportedPotholeArr each time a user clicks the map.
-Use @reportedArrUpdated in the params when using this component
-*/
-
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -73,119 +55,135 @@ import {
   setDoc,
   getDoc,
   DocumentSnapshot,
+  onSnapshot,
 } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, Auth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
+const db: Firestore = getFirestore(app);
+const potholeCollection: CollectionReference = collection(db, "potholes");
+const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
+
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class ClickableMap extends Vue {
-  db: Firestore = getFirestore(app);
-  userCollection: CollectionReference = collection(this.db, "potholes");
   mapCenter = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
-  reportedPotholeArr: Array<Pothole> = [];
-  tempPotholeArr: Array<Pothole> = [];
+  initialPotholeArr: Array<Pothole> = [];
+  userReportsArr: Array<Pothole> = [];
+  allReportsArr: Array<Pothole> = [];
+  displayPotholeArr: Array<Pothole> = [];
+  allReports: any;
+  showUserOnly = false;
+  initialArrLen = 0;
+  initialLoad = true;
+
+  uid = "";
+  auth: Auth | null = null;
+
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
 
   mounted(): void {
-    const auth = getAuth();
-    const user = auth.currentUser;
-      if (user && auth.currentUser != null) {
- 
-        const uid = auth.currentUser.uid;
- 
-        // Use filesystem syntax for document path
-        const uid_doc : DocumentReference = doc(this.userCollection, uid);
- 
-        // Pushes only personal potholes into array
-        getDoc(uid_doc).then((userSnapshot: DocumentSnapshot) => {
-          if (userSnapshot.exists()){
-            this.reportedPotholeArr = userSnapshot.data().potholeArray;
-          }
-        });
+    this.auth = getAuth();
+    this.uid = this.auth?.currentUser!.uid;
 
-        this.tempPotholeArr = this.reportedPotholeArr;
-       
-      }
-   
+    this.getPotholes();
+
+    if (this.showUserOnly) {
+      this.displayPotholeArr = this.userReportsArr;
+    } else {
+      this.displayPotholeArr = this.allReportsArr;
+    }
   }
 
-  addCoords(geoPos: { lat: number; lng: number }): void {
+  getPotholes(): void {
+    onSnapshot(allReportsDoc, (data: DocumentSnapshot) => {
+      if (data.exists()) {
+        this.allReports = data.data();
+
+        this.handleUserReports();
+
+        for (var report of this.allReports.potholeArray) {
+          if (report.filled !== "Filled") {
+            this.allReportsArr.push(report);
+          }
+        }
+
+        this.initialArrLen = this.initialPotholeArr.length;
+      }
+    });
+  }
+
+  handleUserReports() {
+    if (this.initialLoad) {
+      this.allReports.potholeArray.forEach((obj: Pothole) =>
+        this.initialPotholeArr.push(Object.assign({}, obj))
+      );
+      this.initialLoad = false;
+    }
+  }
+
+  newUserReport(geoPos: { lat: number; lng: number }): void {
     // When the user pans the map left/right the longitude
     // angle can be out of the [-180,+180] range
     while (geoPos.lng > 180) geoPos.lng -= 360;
     while (geoPos.lng < -180) geoPos.lng += 360;
     this.geoPos = { ...geoPos };
-    const auth = getAuth();
-    const user = auth.currentUser;
-      if (user && auth.currentUser != null) {
-        const uid = auth.currentUser.uid;
- 
-        // this is to keep a seperate list of personal potholes.
-        this.reportedPotholeArr.push({
-          creatorUID: uid,
-          dateCreated: Date(),
-          coordinates: {
-            lng: this.geoPos.lng!.toString(),
-            lat: this.geoPos.lat!.toString(),
-          },
-          filled: "Not Filled",
-        });
-      }
-  }
 
+    this.userReportsArr.push({
+      creatorUID: this.uid,
+      dateCreated: Date().slice(0, 25),
+      coordinates: {
+        lng: this.geoPos.lng!.toString(),
+        lat: this.geoPos.lat!.toString(),
+      },
+      filled: "Not Filled",
+    });
+
+    this.allReportsArr.push({
+      creatorUID: this.uid,
+      dateCreated: Date(),
+      coordinates: {
+        lng: this.geoPos.lng!.toString(),
+        lat: this.geoPos.lat!.toString(),
+      },
+      filled: "Not Filled",
+    });
+  }
 
   onMapClicked(e: any): void {
-    this.addCoords(e.latlng);
+    this.newUserReport(e.latlng);
   }
 
-  saveCoords(): void {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if (user && auth.currentUser != null) {
-      const userInfo = `${user.displayName}`;
-      const uid = auth.currentUser.uid;
+  submitReport(): void {
+    setDoc(allReportsDoc, { potholeArray: this.allReportsArr });
 
-      // Use filesystem syntax for document path
-      const uid_doc: DocumentReference = doc(this.userCollection, uid);
-      // Add a new document with our own id
-      setDoc(uid_doc, {
-        userName: userInfo,
-        userID: uid,
-        potholeArray: this.reportedPotholeArr,
-      });
+    this.pushToHome();
+  }
 
-      this.tempPotholeArr = this.reportedPotholeArr;
+  pushToHome(): void {
+    this.$router.push({ name: "home" });
+  }
+
+  removeReport(row: Pothole): void {
+    let userIndex = this.userReportsArr.indexOf(row);
+    let allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen;
+    this.userReportsArr.splice(userIndex, 1);
+    this.allReportsArr.splice(allIndex, 1);
+  }
+
+  toggleView() {
+    if (!this.showUserOnly) {
+      this.displayPotholeArr = this.userReportsArr;
+      this.showUserOnly = true;
+    } else {
+      this.displayPotholeArr = this.allReportsArr;
+      this.showUserOnly = false;
     }
   }
-
-  deleteCoords(row: Pothole): void {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if (user && auth.currentUser != null) {
-      const userInfo = `${user.displayName}`;
-      const uid = auth.currentUser.uid;
-
-      let index = this.reportedPotholeArr.indexOf(row);
-      this.reportedPotholeArr.splice(index,1);
-      let index2 = this.tempPotholeArr.indexOf(row);
-      this.tempPotholeArr.splice(index2,1);
-
-      // Use filesystem syntax for document path
-      const uid_doc: DocumentReference = doc(this.userCollection, uid);
-
-      getDoc(uid_doc).then((userSnapshot: DocumentSnapshot) => {
-          if (userSnapshot.exists()){
-            userSnapshot.data().update({potholeArray: this.tempPotholeArr});
-          }
-        });
-    }
-  }
-
 }
 </script>
 

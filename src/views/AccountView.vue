@@ -2,6 +2,7 @@
   <div>
     <nav>
       <router-link to="/home">Home</router-link>
+      <router-link to="/report">Report</router-link>
       <router-link v-if="userInfoObj.dotEmployee" to="/dot/review"
         >Review Reports</router-link
       >

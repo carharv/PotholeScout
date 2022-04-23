@@ -8,8 +8,7 @@
       >
       <router-link to="/account">Account</router-link>
     </nav>
-    <h1>This heading is from HomeView.vue</h1>
-    <DisplayMap/>
+    <DisplayMap />
     <h2>insert charts here</h2>
   </div>
 </template>
@@ -30,12 +29,11 @@ import {
 } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
-
 //Constants
 const db: Firestore = getFirestore(app);
 const userInfoColl: CollectionReference = collection(db, "users");
 
-@Component  ({ components: { DisplayMap } })
+@Component({ components: { DisplayMap } })
 export default class HomeView extends Vue {
   dotEmployee = false;
   uid: string | undefined = "";
