@@ -2,13 +2,13 @@
   <div>
     <nav>
       <router-link to="/home">Home</router-link>
+      <router-link to="/report">Report</router-link>
       <router-link v-if="dotEmployee" to="/dot/review"
         >Review Reports</router-link
       >
       <router-link to="/account">Account</router-link>
     </nav>
-    <h1>This heading is from HomeView.vue</h1>
-    <DOTMap/>
+    <DOTMap />
   </div>
 </template>
 
@@ -33,7 +33,7 @@ import { component } from "vue/types/umd";
 const db: Firestore = getFirestore(app);
 const userInfoColl: CollectionReference = collection(db, "users");
 
-@Component  ({components:{DOTMap}}) 
+@Component({ components: { DOTMap } })
 export default class DotReview extends Vue {
   dotEmployee = false;
   uid: string | undefined = "";
