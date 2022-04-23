@@ -42,7 +42,7 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Pothole, PotholeContainer } from "../datatypes";
+import { Pothole, PotholeContainer, user } from "../datatypes";
 import {
   collection,
   CollectionReference,
@@ -52,16 +52,31 @@ import {
   setDoc,
   DocumentSnapshot,
   onSnapshot,
+  getDoc,
 } from "firebase/firestore";
+import {
+  getAuth,
+  onAuthStateChanged,
+  User,
+  Auth,
+  signOut,
+  deleteUser,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
 const db: Firestore = getFirestore(app);
 const potholeCollection: CollectionReference = collection(db, "potholes");
+const userInfoColl: CollectionReference = collection(db, "users");
 const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
 
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class DOTMap extends Vue {
+  auth: Auth | null = null;
+  uid: string | undefined = "";
+  userDoc!: DocumentReference;
+  userInfoObj!: user;
   mapCenter = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
@@ -73,6 +88,12 @@ export default class DOTMap extends Vue {
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
 
   mounted() {
+    this.auth = getAuth();
+    this.uid = this.auth?.currentUser?.uid;
+    this.userDoc = doc(userInfoColl, this.uid);
+
+    this.getUserInfo();
+
     this.getPotholes();
   }
 
@@ -109,6 +130,8 @@ export default class DOTMap extends Vue {
 
     //Update the pothole status to filled and remove it from the displayArr
     this.allReportsArr[indexNum].filled = "Filled";
+    this.allReportsArr[indexNum].dateRemoved = Date().slice(0, 25);
+    this.allReportsArr[indexNum].deletorEmpID = this.userInfoObj.dotID;
     this.displayArr.splice(indexNum, 1);
 
     //Save the array to firestore
@@ -118,6 +141,14 @@ export default class DOTMap extends Vue {
   //This function simply saves the allReportsArr to firestore
   saveArray() {
     setDoc(allReportsDoc, { potholeArray: this.allReportsArr });
+  }
+
+  getUserInfo() {
+    getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
+      if (userData.exists()) {
+        this.userInfoObj = userData.data().userInfo;
+      }
+    });
   }
 }
 </script>
