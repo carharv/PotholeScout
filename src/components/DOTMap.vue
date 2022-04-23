@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-/* 
+/*
 To use this component you must first import the component
 
 import ClickableMap from "../components/ClickableMap.vue";
@@ -70,6 +70,7 @@ import {
   Firestore,
   setDoc,
   getDoc,
+  updateDoc,
   query,
   getDocs,
   DocumentSnapshot,
@@ -105,32 +106,37 @@ export default class DOTMap extends Vue {
                 this.displayPotholeArr.push(value);
             }
         });
-   
+
   }
 
   async resolveCoords( p : Pothole): Promise<void> {
 
-    let arr : Array<Pothole> = [];
 
     const s: string = p.creatorUID;
 
-    const docRef = doc(this.db, "potholes", s);
-    const docSnap = await getDoc(docRef);
+    const docRef: DocumentReference = doc(this.db, "potholes", s);
 
-    if (docSnap.exists()) {
-        arr.push(docSnap.data().potholeArray);
-        arr.forEach(potDoc => {
-            if(potDoc == p){
-                potDoc.filled = "Resolved";
-            }
+    getDoc(docRef).then((docSnap: DocumentSnapshot) => {
+
+      if (docSnap.exists()) {
+        let arr : Array<Pothole> = docSnap.data().potholeArray;
+        arr.forEach((potDoc: Pothole) => {
+          if(potDoc.dateCreated === p.dateCreated) {
+            potDoc.filled = "Resolved";
+          }
         });
-        console.log(docSnap.data());
-        //docSnap.data().update({potholeArray : arr} );
-        //doc(this.db, "potholes", p.creatorUID).data().update({potholeArray : arr});
-    } else {
-    // doc.data() will be undefined in this case
+
+        // doc(this.db, "potholes", p.creatorUID).update({potholeArray : arr});
+        updateDoc(docRef, {potholeArray: arr});
+
+        console.log(arr);
+      } else {
+        // doc.data() will be undefined in this case
         console.log("No such document!");
     }
+    });
+
+
 
     let index = this.displayPotholeArr.indexOf(p);
     this.displayPotholeArr.splice(index,1);
