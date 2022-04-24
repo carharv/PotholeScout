@@ -6,54 +6,60 @@
     </h2>
     <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
     <div id="accountTabs">
-      <b-tabs pills vertical>
+      <b-tabs pills justified align="center">
         <b-tab title="Profile" active>
           <b-card-text>
-            <h3>Update your profile and then click Save</h3>
-            <label for="fname">First Name</label>
-            <input type="text" id="fname" v-model.lazy="userInfoObj.fname" />
-            <label for="lname">Last Name</label>
-            <input type="text" id="lname" v-model="userInfoObj.lname" />
-            <label for="phone">Phone</label>
-            <input type="text" id="phone" v-model="userInfoObj.phone" />
-            <label for="zipcode">Zipcode</label>
-            <input type="text" id="zipcode" v-model="userInfoObj.zipcode" />
-            <label for="email">Email</label>
-            <input type="text" id="email" v-model="userInfoObj.email" />
-            <button @click="storeUserInfo">Save</button>
+            <div class="tab">
+              <h3>Update your profile and then click Save</h3>
+              <label for="fname">First Name</label>
+              <input type="text" id="fname" v-model.lazy="userInfoObj.fname" />
+              <label for="lname">Last Name</label>
+              <input type="text" id="lname" v-model="userInfoObj.lname" />
+              <label for="phone">Phone</label>
+              <input type="text" id="phone" v-model="userInfoObj.phone" />
+              <label for="zipcode">Zipcode</label>
+              <input type="text" id="zipcode" v-model="userInfoObj.zipcode" />
+              <label for="email">Email</label>
+              <input type="text" id="email" v-model="userInfoObj.email" />
+              <button @click="storeUserInfo">Save</button>
+            </div>
           </b-card-text>
         </b-tab>
         <b-tab title="Settings">
           <b-card-text>
-            <button @click="resetPassword">Reset Password</button>
-            <button @click="signOut">Sign Out</button>
-            <button @click="deleteAcct">Delete Account</button>
+            <div class="tab">
+              <button @click="resetPassword">Reset Password</button>
+              <button @click="signOut">Sign Out</button>
+              <button @click="deleteAcct">Delete Account</button>
+            </div>
           </b-card-text>
         </b-tab>
-        <b-tab title="My Reports"
-          ><b-card-text>
-            <VTable :data="userReportArr">
-              <template #head>
-                <tr>
-                  <VTh sortKey="filled">Status</VTh>
-                  <VTh sortKey="dateCreated">Date Reported</VTh>
-                  <VTh sortKey="dateRemoved">Date Filled</VTh>
-                  <th>Latitude</th>
-                  <th>Longitude</th>
-                </tr>
-              </template>
-              <template #body="{ rows }">
-                <tr v-for="row in rows" :key="row.id">
-                  <td>{{ row.filled }}</td>
-                  <td>{{ row.dateCreated }}</td>
-                  <td>{{ row.dateRemoved }}</td>
-                  <td>{{ row.coordinates.lat.slice(0, 6) }}</td>
-                  <td>{{ row.coordinates.lng.slice(0, 6) }}</td>
-                </tr>
-              </template>
-            </VTable>
-          </b-card-text></b-tab
-        >
+        <b-tab title="My Reports">
+          <b-card-text>
+            <div class="tab">
+              <VTable :data="userReportArr">
+                <template #head>
+                  <tr>
+                    <VTh sortKey="filled">Status</VTh>
+                    <VTh sortKey="dateCreated">Date Reported</VTh>
+                    <VTh sortKey="dateRemoved">Date Filled</VTh>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                  </tr>
+                </template>
+                <template #body="{ rows }">
+                  <tr v-for="row in rows" :key="row.id">
+                    <td>{{ row.filled }}</td>
+                    <td>{{ row.dateCreated }}</td>
+                    <td>{{ row.dateRemoved }}</td>
+                    <td>{{ row.coordinates.lat.slice(0, 6) }}</td>
+                    <td>{{ row.coordinates.lng.slice(0, 6) }}</td>
+                  </tr>
+                </template>
+              </VTable>
+            </div>
+          </b-card-text>
+        </b-tab>
       </b-tabs>
     </div>
   </div>
@@ -200,6 +206,10 @@ export default class AccountView extends Vue {
 </script>
 
 <style>
+.tab {
+  width: 50em;
+}
+
 #accountTabs {
   display: flex;
   flex-direction: column;
