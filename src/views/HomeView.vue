@@ -1,11 +1,13 @@
 <template>
   <div>
-    <h1>Visualizations</h1>
-    <h5>
-      Below you will find the data from all reports represented on a heatmap and
-      on a graph.
-    </h5>
-    <br />
+    <div id="text">
+      <h1>Visualizations</h1>
+      <h5>
+        Below you will find the data from all reports represented on a heatmap
+        and on a graph.
+      </h5>
+      <br />
+    </div>
     <DisplayMap :mapCenter="mapCenter" />
     <br />
     <Graph v-bind:chartData="chartData" :key="childKey" />
@@ -120,6 +122,13 @@ export default class HomeView extends Vue {
 </script>
 
 <style>
+#text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 h2 {
   padding-top: 50px;
 }
