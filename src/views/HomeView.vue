@@ -1,9 +1,14 @@
 <template>
   <div>
+    <h1>Visualizations</h1>
+    <h5>
+      Below you will find the data from all reports represented on a heatmap and
+      on a graph.
+    </h5>
+    <br />
     <DisplayMap :mapCenter="mapCenter" />
-    <h2>Graphs</h2>
+    <br />
     <Graph v-bind:chartData="chartData" :key="childKey" />
-    <Graph />
   </div>
 </template>
 
