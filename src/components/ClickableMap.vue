@@ -27,12 +27,14 @@
           <th>Date</th>
           <th>Lat</th>
           <th>Lng</th>
+          <th>Status</th>
         </template>
         <template #body="{ rows }">
           <tr v-for="row in rows" :key="row.id">
             <td>{{ row.dateCreated }}</td>
             <td>{{ row.coordinates.lat.slice(0, 8) }}</td>
             <td>{{ row.coordinates.lng.slice(0, 8) }}</td>
+            <td>{{ row.filled }}</td>
             <td><button @click="removeReport(row)">Remove</button></td>
           </tr>
         </template>
