@@ -16,7 +16,7 @@
             :fillOpacity="0.5"
             :fillColor="`#ffa500`"
             :color="`#ffa500`"
-            :radius="8"
+            :radius="11"
             :stroke="false"
           >
           </LCircleMarker>
