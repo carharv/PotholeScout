@@ -35,9 +35,16 @@
             <td>{{ row.coordinates.lat.slice(0, 8) }}</td>
             <td>{{ row.coordinates.lng.slice(0, 8) }}</td>
             <td>{{ row.filled }}</td>
-            <td><input type="file" ref="file" accept="image/png, image/jpeg" @change="addImage(row, $event.target.files[0])"></td>
+            <td>
+              <input
+                type="file"
+                ref="file"
+                accept="image/png, image/jpeg"
+                @change="addImage(row, $event.target.files[0])"
+              />
+            </td>
             <td><button @click="removeReport(row)">Remove</button></td>
-            <image id = "img"></image>
+            <image id="img"></image>
           </tr>
         </template>
       </VTable>
@@ -63,12 +70,14 @@ import {
 } from "firebase/firestore";
 import { getAuth, Auth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { app } from "../firebaseConfig";
 
 const db: Firestore = getFirestore(app);
 const potholeCollection: CollectionReference = collection(db, "potholes");
 const userInfoColl: CollectionReference = collection(db, "users");
 const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
+const storage = getStorage();
 
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class ClickableMap extends Vue {
@@ -96,7 +105,7 @@ export default class ClickableMap extends Vue {
   mapCenter = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
-  potImage = ""
+  potImage = "";
 
   mounted(): void {
     //Get auth and uid
@@ -239,7 +248,11 @@ export default class ClickableMap extends Vue {
     //Since the target report in userReportsArr and allReportsArr have different indexes
     //we need use the initialArrLen variable to keep track
     let userIndex = this.userReportsArr.indexOf(row);
-    let allIndex;
+    let allIndex: number;
+    let uploadLocation: string =
+      "images/" + URL.createObjectURL(file).toString().slice(27);
+    let storageRef = ref(storage, uploadLocation);
+    let uploadURL: string;
 
     //Index changes based on whether or not there are any filled potholes
     //Not sure why but this makes things work
@@ -249,13 +262,14 @@ export default class ClickableMap extends Vue {
       allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen - 1;
     }
 
-    console.log(URL.createObjectURL(file));
-
-    let s :string = URL.createObjectURL(file).toString();
-
-    this.userReportsArr[userIndex].image = s;
-    this.allReportsArr[allIndex].image = s;
-
+    uploadBytes(storageRef, file).then(() => {
+      getDownloadURL(storageRef)
+        .then((url) => (uploadURL = url))
+        .then(() => {
+          this.userReportsArr[userIndex].image = uploadURL;
+          this.allReportsArr[allIndex].image = uploadURL;
+        });
+    });
   }
 
   //This function is used to toggle between showing all potholes including the user's pending reports

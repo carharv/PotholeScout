@@ -34,32 +34,6 @@
             </div>
           </b-card-text>
         </b-tab>
-        <b-tab title="My Reports">
-          <b-card-text>
-            <div class="tab">
-              <VTable :data="userReportArr">
-                <template #head>
-                  <tr>
-                    <VTh sortKey="filled">Status</VTh>
-                    <VTh sortKey="dateCreated">Date Reported</VTh>
-                    <VTh sortKey="dateRemoved">Date Filled</VTh>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                  </tr>
-                </template>
-                <template #body="{ rows }">
-                  <tr v-for="row in rows" :key="row.id">
-                    <td>{{ row.filled }}</td>
-                    <td>{{ row.dateCreated }}</td>
-                    <td>{{ row.dateRemoved }}</td>
-                    <td>{{ row.coordinates.lat.slice(0, 6) }}</td>
-                    <td>{{ row.coordinates.lng.slice(0, 6) }}</td>
-                  </tr>
-                </template>
-              </VTable>
-            </div>
-          </b-card-text>
-        </b-tab>
         <b-tab title="My Reports"
           ><b-card-text>
             <VTable :data="userReportArr">
@@ -80,12 +54,15 @@
                   <td>{{ row.dateRemoved }}</td>
                   <td>{{ row.coordinates.lat.slice(0, 6) }}</td>
                   <td>{{ row.coordinates.lng.slice(0, 6) }}</td>
-                  <td> <image src = "row.image" ></image></td>
+                  <td>
+                    <a :href="row.image" target="_blank">
+                      <img :src="row.image" width="50%" height="50%" />
+                    </a>
+                  </td>
                 </tr>
               </template>
-            </VTable>
-          </b-card-text></b-tab
-        >
+            </VTable> </b-card-text
+        ></b-tab>
       </b-tabs>
     </div>
   </div>
