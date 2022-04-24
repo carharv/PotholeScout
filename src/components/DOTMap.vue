@@ -1,43 +1,36 @@
 <template>
   <div>
-    <h1>This is from ClickableMap.vue Component</h1>
-
     <div id="map">
-      <h4>Single Point View</h4>
-      <LMap
-        style="height: 500px; width: 800px"
-        :zoom="13"
-        :center="mapCenter"
-      >
+      <LMap style="height: 500px; width: 800px" :zoom="13" :center="mapCenter">
         <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
-        <LMarker
-          v-for="p in displayPotholeArr"
-          :key="p.id"
-          :lat-lng="p.coordinates"
-        >
+        <LMarker v-for="p in displayArr" :key="p.id" :lat-lng="p.coordinates">
           <LIcon iconUrl="https://ik.imagekit.io/carharv/coneIcon"> </LIcon>
           ></LMarker
         >
       </LMap>
     </div>
     <div id="tableDiv">
-      <h2>Reported Potholes</h2>
-      <VTable :data="displayPotholeArr">
+      <h2>Unfilled Potholes</h2>
+      <VTable :data="potholeContainerArr">
         <template #head>
           <th>Date</th>
-          <th>UID</th>
-          <th>lat</th>
-          <th>lng</th>
+          <th>Reported By</th>
+          <th>Lat</th>
+          <th>Lng</th>
           <th>Fill Status</th>
         </template>
         <template #body="{ rows }">
           <tr v-for="row in rows" :key="row.id">
-            <td>{{ row.dateCreated }}</td>
-            <td>{{ row.creatorUID }}</td>
-            <td>{{ row.coordinates.lat.slice(0, 8) }}</td>
-            <td>{{ row.coordinates.lng.slice(0, 8) }}</td>
-            <td>{{row.filled}}</td>
-            <td><button @click="resolveCoords(row)">Resolve</button></td>
+            <td>{{ row.pothole.dateCreated }}</td>
+            <td>{{ row.pothole.creatorName }}</td>
+            <td>{{ row.pothole.coordinates.lat.slice(0, 8) }}</td>
+            <td>{{ row.pothole.coordinates.lng.slice(0, 8) }}</td>
+            <td>{{ row.pothole.filled }}</td>
+            <td>
+              <button @click="resolvePothole(row.originalIndex)">
+                Resolve
+              </button>
+            </td>
           </tr>
         </template>
       </VTable>
@@ -46,22 +39,10 @@
 </template>
 
 <script lang="ts">
-/*
-To use this component you must first import the component
-
-import ClickableMap from "../components/ClickableMap.vue";
-@Component({ components: { ClickableMap } })
-
-Then you must supply the component with the following props: uid, existingPotholeArr, mapCenter
-
-In return, this component will emit the full reportedPotholeArr each time a user clicks the map.
-Use @reportedArrUpdated in the params when using this component
-*/
-
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Pothole } from "../datatypes";
+import { Pothole, PotholeContainer, user } from "../datatypes";
 import {
   collection,
   CollectionReference,
@@ -69,79 +50,123 @@ import {
   DocumentReference,
   Firestore,
   setDoc,
-  getDoc,
-  updateDoc,
-  query,
-  getDocs,
   DocumentSnapshot,
+  onSnapshot,
+  getDoc,
 } from "firebase/firestore";
+import {
+  getAuth,
+  onAuthStateChanged,
+  User,
+  Auth,
+  signOut,
+  deleteUser,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
+const db: Firestore = getFirestore(app);
+const potholeCollection: CollectionReference = collection(db, "potholes");
+const userInfoColl: CollectionReference = collection(db, "users");
+const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
+
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class DOTMap extends Vue {
-  db: Firestore = getFirestore(app);
-  userCollection: CollectionReference = collection(this.db, "potholes");
+  auth: Auth | null = null;
+  uid: string | undefined = "";
+  userDoc!: DocumentReference;
+  userInfoObj!: user;
   mapCenter = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
-  displayPotholeArr: Array<Pothole> = [];
+  allReportsArr: Array<Pothole> = [];
+  displayArr: Array<Pothole> = [];
+  potholeContainerArr: Array<PotholeContainer> = [];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  testVar = "";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
 
-  async mounted(): Promise<void> {
-    const q = query(collection(this.db, "potholes"));
-    let temp : Array<Pothole> = [];
+  mounted() {
+    this.auth = getAuth();
+    this.uid = this.auth?.currentUser?.uid;
+    this.userDoc = doc(userInfoColl, this.uid);
 
-    // pushes all potholes into an array
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-        temp.push(...doc.data().potholeArray);
-    });
+    this.getUserInfo();
 
-    // doc.data() is never undefined for query doc snapshots
-        temp.forEach( value => {
-            if(value.filled != "Resolved"){
-                this.displayPotholeArr.push(value);
-            }
-        });
-
+    this.getPotholes();
   }
 
-  async resolveCoords( p : Pothole): Promise<void> {
+  //This function retrieves all unfilled potholes and listens for updates
+  getPotholes() {
+    onSnapshot(allReportsDoc, (reports: DocumentSnapshot) => {
+      if (reports.exists()) {
+        this.allReportsArr = reports.data().potholeArray;
+        //Clear the displayArr and potholeContainerArr when the data is updated
+        this.displayArr.splice(0);
+        this.potholeContainerArr.splice(0);
 
+        //Loop through the allReportsArr to find unfilled potholes
+        for (let index in this.allReportsArr) {
+          if (this.allReportsArr[index].filled !== "Filled") {
+            //If the pothole is unfilled then psuh it to the displayArr and also
+            //Push it to the potholeContainerArr to store the pothole's original index
+            this.displayArr.push(this.allReportsArr[index]);
 
-    const s: string = p.creatorUID;
-
-    const docRef: DocumentReference = doc(this.db, "potholes", s);
-
-    getDoc(docRef).then((docSnap: DocumentSnapshot) => {
-
-      if (docSnap.exists()) {
-        let arr : Array<Pothole> = docSnap.data().potholeArray;
-        arr.forEach((potDoc: Pothole) => {
-          if(potDoc.dateCreated === p.dateCreated) {
-            potDoc.filled = "Resolved";
+            this.potholeContainerArr.push({
+              pothole: this.allReportsArr[index],
+              originalIndex: index,
+            });
           }
-        });
-
-        // doc(this.db, "potholes", p.creatorUID).update({potholeArray : arr});
-        updateDoc(docRef, {potholeArray: arr});
-
-        console.log(arr);
-      } else {
-        // doc.data() will be undefined in this case
-        console.log("No such document!");
-    }
+        }
+        console.log("Pothole Array has been updated");
+      }
     });
-
-
-
-    let index = this.displayPotholeArr.indexOf(p);
-    this.displayPotholeArr.splice(index,1);
   }
 
+  //This function is used to resolve a pothole report
+  resolvePothole(index: string) {
+    let indexNum = parseInt(index);
+
+    //Update the pothole status to filled and remove it from the displayArr
+    this.allReportsArr[indexNum].filled = "Filled";
+    this.allReportsArr[indexNum].dateRemoved = Date().slice(0, 25);
+    this.allReportsArr[indexNum].deletorEmpID = this.userInfoObj.dotID;
+    this.displayArr.splice(indexNum, 1);
+
+    //Save the array to firestore
+    this.saveArray();
+  }
+
+  //This function simply saves the allReportsArr to firestore
+  saveArray() {
+    setDoc(allReportsDoc, { potholeArray: this.allReportsArr });
+  }
+
+  getUserInfo() {
+    getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
+      if (userData.exists()) {
+        this.userInfoObj = userData.data().userInfo;
+      }
+    });
+  }
+
+  /*   async getNameFromUID(tempUid: string) {
+    let tempDoc: DocumentReference;
+    let tempFname!: string;
+    let tempLname!: string;
+    tempDoc = doc(userInfoColl, tempUid);
+
+    await getDoc(tempDoc).then((userData: DocumentSnapshot) => {
+      if (userData.exists()) {
+        tempFname = userData.data().userInfo.fname;
+        tempLname = userData.data().userInfo.lname;
+      }
+    });
+
+    return tempFname + " " + tempLname;
+  } */
 }
 </script>
 

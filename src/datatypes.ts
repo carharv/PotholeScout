@@ -5,11 +5,17 @@ type Coordinate = {
 
 type Pothole = {
   creatorUID: string;
-  deletorUID?: string;
+  creatorName: string;
+  deletorEmpID?: string;
   dateCreated: string;
   dateRemoved?: string;
   coordinates: Coordinate;
   filled: string;
+};
+
+type PotholeContainer = {
+  pothole: Pothole;
+  originalIndex: string;
 };
 
 type user = {
@@ -35,4 +41,4 @@ type geoInfo = {
   locality: string;
 };
 
-export { Coordinate, Pothole, user, geoPos, geoInfo };
+export { Coordinate, Pothole, PotholeContainer, user, geoPos, geoInfo };

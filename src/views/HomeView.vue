@@ -31,7 +31,6 @@ import {
 } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
-
 //Constants
 const db: Firestore = getFirestore(app);
 const userInfoColl: CollectionReference = collection(db, "users");
