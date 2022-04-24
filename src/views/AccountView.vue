@@ -1,13 +1,5 @@
 <template>
   <div>
-    <nav>
-      <router-link to="/home">Home</router-link>
-      <router-link to="/report">Report</router-link>
-      <router-link v-if="userInfoObj.dotEmployee" to="/dot/review"
-        >Review Reports</router-link
-      >
-      <router-link to="/account">Account</router-link>
-    </nav>
     <h1 v-show="userInfoLoaded">Welcome, {{ userInfoObj.fname }}</h1>
     <h2 v-if="userInfoObj.dotEmployee">
       DOT Employee ID# {{ userInfoObj.dotID }}

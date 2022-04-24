@@ -1,13 +1,5 @@
 <template>
   <div>
-    <nav>
-      <router-link to="/home">Home</router-link>
-      <router-link to="/report">Report</router-link>
-      <router-link v-if="dotEmployee" to="/dot/review"
-        >Review Reports</router-link
-      >
-      <router-link to="/account">Account</router-link>
-    </nav>
     <h1>This heading is from HomeView.vue</h1>
     <DisplayMap :mapCenter="mapCenter" />
     <Graph />
@@ -37,7 +29,6 @@ const userInfoColl: CollectionReference = collection(db, "users");
 
 @Component({ components: { DisplayMap, Graph } })
 export default class HomeView extends Vue {
-  dotEmployee = false;
   uid: string | undefined = "";
   userDoc!: DocumentReference;
   auth: Auth | null = null;
@@ -53,7 +44,6 @@ export default class HomeView extends Vue {
   getUserInfo() {
     getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
       if (userData.exists()) {
-        this.dotEmployee = userData.data().userInfo.dotEmployee;
         this.mapCenter = [
           parseInt(userData.data().userInfo.lat),
           parseInt(userData.data().userInfo.long),
