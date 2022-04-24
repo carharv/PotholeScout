@@ -18,10 +18,10 @@ import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, Li
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
-
 export default {
   name: 'BarChart',
   components: { Bar },
+
   props: {
     chartData: {
         type: Object,
@@ -42,11 +42,22 @@ export default {
     cssClasses: {
       default: '',
       type: String
-    }
+    },
+    styles: {
+      type: Object,
+      default: () => {console.log()}
+    },
+    plugins: {
+      type: Object,
+      default: () => {console.log()}
+    },
+    datasetIdKey: {
+      type: String,
+      default: 'label'
+    },
   },
   data() {
     return {
-
       chartOptions: {
         responsive: true
       }
