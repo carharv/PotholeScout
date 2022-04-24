@@ -72,7 +72,8 @@
 import { Vue, Component } from "vue-property-decorator";
 import { BTab, BTabs } from "bootstrap-vue";
 import { app } from "../firebaseConfig";
-import { user, Pothole } from "@/datatypes";
+import { user, Pothole, geoPos } from "@/datatypes";
+import axios, { AxiosResponse } from "axios";
 import {
   getAuth,
   Auth,
@@ -154,15 +155,36 @@ export default class AccountView extends Vue {
     this.userInfoLoaded = true;
   }
 
-  //This function stores the user object in firestore
-  storeUserInfo(): void {
-    setDoc(this.userDoc, { userInfo: this.userInfoObj })
-      .then(() => {
-        this.showMessage(`Your profile has been updated.`);
+  //Function that gets the user's lat, long, and locality from their zipcode
+  async getUserGeopos() {
+    await axios
+      .request({
+        method: "GET",
+        url: "http://api.positionstack.com/v1/forward?",
+        params: {
+          access_key: "a5af50b77b97143132298810bdd80333",
+          query: this.userInfoObj.zipcode,
+        },
       })
-      .catch((err: any) => {
-        console.log(`addDoc Error: ${err}`);
+      .then((r: AxiosResponse) => r.data)
+      .then((r: geoPos) => {
+        this.userInfoObj.lat = r.data[0].latitude.toString();
+        this.userInfoObj.long = r.data[0].longitude.toString();
+        this.userInfoObj.locality = r.data[0].locality;
       });
+  }
+
+  //This function stores the user object in firestore
+  async storeUserInfo() {
+    await this.getUserGeopos().then(() => {
+      setDoc(this.userDoc, { userInfo: this.userInfoObj })
+        .then(() => {
+          this.showMessage(`Your profile has been updated.`);
+        })
+        .catch((err: any) => {
+          console.log(`addDoc Error: ${err}`);
+        });
+    });
   }
 
   resetPassword() {
