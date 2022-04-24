@@ -1,9 +1,8 @@
 <template>
   <div>
-    <h1>This heading is from HomeView.vue</h1>
     <DisplayMap :mapCenter="mapCenter" />
     <h2>Graphs</h2>
-    <Graph v-bind:chartData="chartData" :key="childKey"/>
+    <Graph v-bind:chartData="chartData" :key="childKey" />
     <Graph />
   </div>
 </template>
@@ -30,27 +29,37 @@ const db: Firestore = getFirestore(app);
 const userInfoColl: CollectionReference = collection(db, "users");
 const allReports: DocumentReference = doc(db, "potholes", "allReports");
 
-
 @Component({ components: { DisplayMap, Graph } })
 export default class HomeView extends Vue {
   uid: string | undefined = "";
   userDoc!: DocumentReference;
   auth: Auth | null = null;
   childKey = 0;
-  numReported = [0,0,0,0,0,0,0,0,0,0,0,0];
-  totalDays = [0,0,0,0,0,0,0,0,0,0,0,0];
+  numReported = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  totalDays = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   mapCenter: Array<number> = [42.963, -85.668];
   chartData = {
-
-
-    labels: [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    labels: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
     datasets: [
       {
         label: "Average # of days to fix pothole",
-        data: [0,0,0,0,0,0,0,0,0,0,0,0]
-      }
-    ]
-  }
+        data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      },
+    ],
+  };
   mounted() {
     this.auth = getAuth();
     this.uid = this.auth?.currentUser?.uid;
@@ -68,25 +77,29 @@ export default class HomeView extends Vue {
       if (userData.exists()) {
         var potholes = userData.data().potholeArray;
         for (let p of potholes) {
-            if (p.dateRemoved) {
-                const dateCreated = new Date(p.dateCreated)
-                const dateRemoved = new Date(p.dateRemoved)
-                // Get the days between the two dates
-                const daysTook = Math.round((dateRemoved.getTime() - dateCreated.getTime()) / (1000*60*60*24))
-                // Update number of potholes fixed for the month
-                this.numReported[dateCreated.getMonth()]++;
-                // Updated total amount of days taken to fix pothole for a month
-                this.totalDays[dateCreated.getMonth()] += daysTook
-                // Updated main chart data to be average amount of days to fix a pothole
-                this.chartData.datasets[0].data[dateCreated.getMonth()] =  this.totalDays[dateCreated.getMonth()] / this.numReported[dateCreated.getMonth()]
-            }
+          if (p.dateRemoved) {
+            const dateCreated = new Date(p.dateCreated);
+            const dateRemoved = new Date(p.dateRemoved);
+            // Get the days between the two dates
+            const daysTook = Math.round(
+              (dateRemoved.getTime() - dateCreated.getTime()) /
+                (1000 * 60 * 60 * 24)
+            );
+            // Update number of potholes fixed for the month
+            this.numReported[dateCreated.getMonth()]++;
+            // Updated total amount of days taken to fix pothole for a month
+            this.totalDays[dateCreated.getMonth()] += daysTook;
+            // Updated main chart data to be average amount of days to fix a pothole
+            this.chartData.datasets[0].data[dateCreated.getMonth()] =
+              this.totalDays[dateCreated.getMonth()] /
+              this.numReported[dateCreated.getMonth()];
+          }
         }
         // Refresh child component
         this.childKey += 1;
       }
     });
   }
-
 
   getUserInfo() {
     getDoc(this.userDoc).then((userData: DocumentSnapshot) => {

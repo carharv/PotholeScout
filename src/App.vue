@@ -1,10 +1,10 @@
 <template>
   <div id="app">
     <h1>Pothole Scout</h1>
-    <nav>
+    <nav v-if="this.$route.name !== 'login' && this.$route.name !== 'signup'">
       <router-link to="/home">Home</router-link>
       <router-link to="/report">Report</router-link>
-      <router-link v-if="dotEmployee" to="/dot/review"
+      <router-link v-if="employeeStatus" to="/dot/review"
         >Review Reports</router-link
       >
       <router-link to="/account">Account</router-link>
@@ -34,22 +34,29 @@ const userInfoColl: CollectionReference = collection(db, "users");
 
 @Component({})
 export default class App extends Vue {
-  dotEmployee = false;
   uid: string | undefined = "";
   userDoc!: DocumentReference;
   auth: Auth | null = null;
+  employeeStatus = false;
 
   mounted() {
     this.auth = getAuth();
     this.uid = this.auth?.currentUser?.uid;
     this.userDoc = doc(userInfoColl, this.uid);
-    this.getUserInfo();
+    this.checkEmployeeStatus();
   }
 
-  getUserInfo() {
+  updated() {
+    this.auth = getAuth();
+    this.uid = this.auth?.currentUser?.uid;
+    this.userDoc = doc(userInfoColl, this.uid);
+    this.checkEmployeeStatus();
+  }
+
+  checkEmployeeStatus() {
     getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
       if (userData.exists()) {
-        this.dotEmployee = userData.data().userInfo.dotEmployee;
+        this.employeeStatus = userData.data().userInfo.dotEmployee;
       }
     });
   }
