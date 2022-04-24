@@ -149,8 +149,8 @@ export default class DOTMap extends Vue {
       if (userData.exists()) {
         this.userInfoObj = userData.data().userInfo;
         this.mapCenter = [
-          parseInt(this.userInfoObj.lat),
-          parseInt(this.userInfoObj.long),
+          parseFloat(this.userInfoObj.lat),
+          parseFloat(this.userInfoObj.long),
         ];
       }
     });

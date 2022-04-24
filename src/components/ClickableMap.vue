@@ -129,8 +129,8 @@ export default class ClickableMap extends Vue {
         this.uidName =
           userData.data().userInfo.fname + " " + userData.data().userInfo.lname;
         this.mapCenter = [
-          parseInt(userData.data().userInfo.lat),
-          parseInt(userData.data().userInfo.long),
+          parseFloat(userData.data().userInfo.lat),
+          parseFloat(userData.data().userInfo.long),
         ];
       }
     });
