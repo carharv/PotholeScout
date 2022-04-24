@@ -24,7 +24,7 @@
             <td>{{ row.pothole.dateCreated }}</td>
             <td>{{ row.pothole.creatorName }}</td>
             <td>{{ row.pothole.coordinates.lat.slice(0, 8) }}</td>
-            <td>{{ row.pothole.coordinates.lng.slice(0, 8) }}</td>
+            <td>{{ row.pothole.coordinates.lng.slice(0, 9) }}</td>
             <td>{{ row.pothole.filled }}</td>
             <td>
               <button @click="resolvePothole(row.originalIndex)">
