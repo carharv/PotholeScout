@@ -105,8 +105,8 @@ export default class HomeView extends Vue {
     getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
       if (userData.exists()) {
         this.mapCenter = [
-          parseInt(userData.data().userInfo.lat),
-          parseInt(userData.data().userInfo.long),
+          parseFloat(userData.data().userInfo.lat),
+          parseFloat(userData.data().userInfo.long),
         ];
       }
     });
