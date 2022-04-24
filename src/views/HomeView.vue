@@ -1,17 +1,11 @@
 <template>
   <div>
-    <nav>
-      <router-link to="/home">Home</router-link>
-      <router-link to="/report">Report</router-link>
-      <router-link v-if="dotEmployee" to="/dot/review"
-        >Review Reports</router-link
-      >
-      <router-link to="/account">Account</router-link>
-    </nav>
     <h1>This heading is from HomeView.vue</h1>
     <DisplayMap/>
     <h2>Graphs</h2>
     <Graph v-bind:chartData="chartData" :key="childKey"/>
+    <DisplayMap :mapCenter="mapCenter" />
+    <Graph />
   </div>
 </template>
 
@@ -38,16 +32,17 @@ const userInfoColl: CollectionReference = collection(db, "users");
 const allReports: DocumentReference = doc(db, "potholes", "allReports");
 
 
-@Component  ({ components: { DisplayMap, Graph } })
+@Component({ components: { DisplayMap, Graph } })
 export default class HomeView extends Vue {
-  dotEmployee = false;
   uid: string | undefined = "";
   userDoc!: DocumentReference;
   auth: Auth | null = null;
   childKey = 0;
   numReported = [0,0,0,0,0,0,0,0,0,0,0,0];
   totalDays = [0,0,0,0,0,0,0,0,0,0,0,0];
+  mapCenter: Array<number> = [42.963, -85.668];
   chartData = {
+
 
     labels: [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     datasets: [
@@ -61,7 +56,7 @@ export default class HomeView extends Vue {
     this.auth = getAuth();
     this.uid = this.auth?.currentUser?.uid;
     this.userDoc = doc(userInfoColl, this.uid);
-    this.checkDotEmployee();
+    this.getUserInfo();
   }
 
   beforeMount() {
@@ -93,10 +88,14 @@ export default class HomeView extends Vue {
     });
   }
 
-  checkDotEmployee() {
+
+  getUserInfo() {
     getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
       if (userData.exists()) {
-        this.dotEmployee = userData.data().userInfo.dotEmployee;
+        this.mapCenter = [
+          parseInt(userData.data().userInfo.lat),
+          parseInt(userData.data().userInfo.long),
+        ];
       }
     });
   }

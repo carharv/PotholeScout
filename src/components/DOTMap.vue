@@ -77,7 +77,7 @@ export default class DOTMap extends Vue {
   uid: string | undefined = "";
   userDoc!: DocumentReference;
   userInfoObj!: user;
-  mapCenter = [42.963, -85.668];
+  mapCenter: Array<number> = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
   allReportsArr: Array<Pothole> = [];
@@ -148,25 +148,13 @@ export default class DOTMap extends Vue {
     getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
       if (userData.exists()) {
         this.userInfoObj = userData.data().userInfo;
+        this.mapCenter = [
+          parseInt(this.userInfoObj.lat),
+          parseInt(this.userInfoObj.long),
+        ];
       }
     });
   }
-
-  /*   async getNameFromUID(tempUid: string) {
-    let tempDoc: DocumentReference;
-    let tempFname!: string;
-    let tempLname!: string;
-    tempDoc = doc(userInfoColl, tempUid);
-
-    await getDoc(tempDoc).then((userData: DocumentSnapshot) => {
-      if (userData.exists()) {
-        tempFname = userData.data().userInfo.fname;
-        tempLname = userData.data().userInfo.lname;
-      }
-    });
-
-    return tempFname + " " + tempLname;
-  } */
 }
 </script>
 
