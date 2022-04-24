@@ -1,5 +1,13 @@
 <template>
   <div>
+    <div id="text">
+      <h1>Review Pothole Reports</h1>
+      <h5>
+        To mark a pothole as filled simply click the pothole's resolve button in
+        the table below
+      </h5>
+      <br />
+    </div>
     <DOTMap />
   </div>
 </template>
@@ -12,4 +20,11 @@ import DOTMap from "../components/DOTMap.vue";
 export default class DotReview extends Vue {}
 </script>
 
-<style></style>
+<style>
+#text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+</style>

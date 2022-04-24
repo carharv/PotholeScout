@@ -8,11 +8,11 @@
           <input type="text" id="fname" v-model="fname" />
           <label for="lname">Last Name</label>
           <input type="text" id="lname" v-model="lname" />
+          <br />
           <label for="dotCheck">Are you a DOT employee?</label>
           <input type="checkbox" id="dotCheck" v-model="dotEmployee" />
-          <br />
-          <label v-show="dotEmployee" for="dotID">DOT ID#</label>
-          <input v-show="dotEmployee" type="text" id="dotID" v-model="dotID" />
+          <label v-if="dotEmployee" for="dotID">DOT ID#</label>
+          <input v-if="dotEmployee" type="text" id="dotID" v-model="dotID" />
           <br />
           <label for="phone">Phone</label>
           <input type="text" id="phone" v-model="phone" />
@@ -21,21 +21,10 @@
           <label for="email">Email</label>
           <input type="text" id="email" v-model="email" />
           <label for="password">Password</label>
-          <input type="text" id="password" v-model="password" />
+          <input type="password" id="password" v-model="password" />
           <label for="retypePassword">Retype Password</label>
-          <input type="text" id="retypePassword" v-model="retypePassword" />
+          <input type="password" id="retypePassword" v-model="retypePassword" />
         </form>
-        <button
-          class="button"
-          :disabled="!isValidInput"
-          v-show="!accountCreated"
-          @click="createAccount"
-        >
-          Create Account
-        </button>
-        <button class="button" v-show="accountCreated" @click="pushToLogin">
-          Return To Login
-        </button>
       </div>
       <div>
         <p class="error" v-if="inputErrors.length">
@@ -44,6 +33,17 @@
         <ul class="error">
           <li v-for="(error, pos) in inputErrors" :key="pos">{{ error }}</li>
         </ul>
+        <button
+          class="button"
+          :disabled="!isValidInput"
+          v-show="!accountCreated"
+          @click="createAccount"
+        >
+          Create Account
+        </button>
+        <button class="button" v-if="accountCreated" @click="pushToLogin">
+          Return To Login
+        </button>
       </div>
       <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
     </div>
@@ -344,7 +344,14 @@ export default class SignUpView extends Vue {
   gap: 5%;
 }
 
-input[type="text"] {
+form {
+  margin-bottom: 2em;
+}
+
+label {
+  margin: 2em;
+}
+input {
   display: block;
   width: 400px;
   border-radius: 5px;
@@ -355,7 +362,7 @@ input[type="text"] {
   padding-left: 0;
   border: 2px solid #699ead;
   transition: all 0.2s;
-  margin-bottom: 20px;
+  margin-bottom: 2em;
 }
 
 .button {
