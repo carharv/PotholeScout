@@ -83,10 +83,11 @@ const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
 
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class DisplayMap extends Vue {
+  @Prop() mapCenter!: Array<number>;
+
   geoPos: { lat?: number; lng?: number } = {};
   displayPotholeArr: Array<Pothole> = [];
   heatmapMode = true;
-  mapCenter = [42.963, -85.668];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
