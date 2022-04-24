@@ -4,7 +4,8 @@
       <div id="heatmap" v-show="heatmapMode">
         <LMap
           style="height: 500px; width: 800px"
-          :zoom="13"
+          :zoom="12"
+          :minZoom="12"
           :center="mapCenter"
         >
           <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
@@ -15,7 +16,8 @@
             :fillOpacity="0.5"
             :fillColor="`#ffa500`"
             :color="`#ffa500`"
-            :radius="100"
+            :radius="8"
+            :stroke="false"
           >
           </LCircleMarker>
         </LMap>
@@ -83,10 +85,11 @@ const allReportsDoc: DocumentReference = doc(potholeCollection, "allReports");
 
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class DisplayMap extends Vue {
+  @Prop() mapCenter!: Array<number>;
+
   geoPos: { lat?: number; lng?: number } = {};
   displayPotholeArr: Array<Pothole> = [];
   heatmapMode = true;
-  mapCenter = [42.963, -85.668];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
