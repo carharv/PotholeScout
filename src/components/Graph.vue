@@ -18,45 +18,35 @@ import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, Li
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
+
 export default {
   name: 'BarChart',
   components: { Bar },
   props: {
+    chartData: {
+        type: Object,
+        required: true
+      },
     chartId: {
       type: String,
       default: 'bar-chart'
     },
-    datasetIdKey: {
-      type: String,
-      default: 'label'
-    },
     width: {
-      type: String,
-      default: '854px'
+      type: Number,
+      default: 854
     },
     height: {
-      type: String,
-      default: '480px'
+      type: Number,
+      default: 480
     },
     cssClasses: {
       default: '',
       type: String
-    },
-    styles: {
-      type: Object,
-      default: () => {console.log()}
-    },
-    plugins: {
-      type: Object,
-      default: () => {console.log()}
     }
   },
   data() {
     return {
-      chartData: {
-        labels: [ 'January', 'February', 'March' ],
-        datasets: [ { data: [40, 20, 12] } ]
-      },
+
       chartOptions: {
         responsive: true
       }
