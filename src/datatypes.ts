@@ -11,6 +11,7 @@ type Pothole = {
   dateRemoved?: string;
   coordinates: Coordinate;
   filled: string;
+  image: string;
 };
 
 type PotholeContainer = {

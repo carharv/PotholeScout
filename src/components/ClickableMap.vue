@@ -35,7 +35,9 @@
             <td>{{ row.coordinates.lat.slice(0, 8) }}</td>
             <td>{{ row.coordinates.lng.slice(0, 8) }}</td>
             <td>{{ row.filled }}</td>
+            <td><input type="file" ref="file" accept="image/png, image/jpeg" @change="addImage(row, $event.target.files[0])"></td>
             <td><button @click="removeReport(row)">Remove</button></td>
+            <image id = "img"></image>
           </tr>
         </template>
       </VTable>
@@ -94,6 +96,7 @@ export default class ClickableMap extends Vue {
   mapCenter = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
+  potImage = ""
 
   mounted(): void {
     //Get auth and uid
@@ -175,6 +178,7 @@ export default class ClickableMap extends Vue {
       },
       filled: "Not Filled",
       creatorName: this.uidName,
+      image: this.potImage,
     });
 
     //Also push the user's report to the allReportsArr
@@ -187,6 +191,7 @@ export default class ClickableMap extends Vue {
       },
       filled: "Not Filled",
       creatorName: this.uidName,
+      image: this.potImage,
     });
   }
 
@@ -223,6 +228,30 @@ export default class ClickableMap extends Vue {
 
     this.userReportsArr.splice(userIndex, 1);
     this.allReportsArr.splice(allIndex, 1);
+  }
+
+  //This function is used to remove a user's report before they submit it
+  addImage(row: Pothole, file: File): void {
+    //Since the target report in userReportsArr and allReportsArr have different indexes
+    //we need use the initialArrLen variable to keep track
+    let userIndex = this.userReportsArr.indexOf(row);
+    let allIndex;
+
+    //Index changes based on whether or not there are any filled potholes
+    //Not sure why but this makes things work
+    if (!this.filledPotholeArr[0]) {
+      allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen;
+    } else {
+      allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen - 1;
+    }
+
+    console.log(URL.createObjectURL(file));
+
+    let s :string = URL.createObjectURL(file).toString();
+
+    this.userReportsArr[userIndex].image = s;
+    this.allReportsArr[allIndex].image = s;
+
   }
 
   //This function is used to toggle between showing all potholes including the user's pending reports

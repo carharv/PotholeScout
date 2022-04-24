@@ -48,6 +48,7 @@
                   <VTh sortKey="dateRemoved">Date Filled</VTh>
                   <th>Latitude</th>
                   <th>Longitude</th>
+                  <th>Image</th>
                 </tr>
               </template>
               <template #body="{ rows }">
@@ -57,6 +58,7 @@
                   <td>{{ row.dateRemoved }}</td>
                   <td>{{ row.coordinates.lat.slice(0, 6) }}</td>
                   <td>{{ row.coordinates.lng.slice(0, 6) }}</td>
+                  <td> <image src = "row.image" ></image></td>
                 </tr>
               </template>
             </VTable>
