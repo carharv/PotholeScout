@@ -9,8 +9,8 @@
       <router-link to="/account">Account</router-link>
     </nav>
     <h1>This heading is from HomeView.vue</h1>
-    <DisplayMap/>
-    <Graph/>
+    <DisplayMap :mapCenter="mapCenter" />
+    <Graph />
   </div>
 </template>
 
@@ -35,24 +35,29 @@ import { app } from "../firebaseConfig";
 const db: Firestore = getFirestore(app);
 const userInfoColl: CollectionReference = collection(db, "users");
 
-@Component  ({ components: { DisplayMap, Graph } })
+@Component({ components: { DisplayMap, Graph } })
 export default class HomeView extends Vue {
   dotEmployee = false;
   uid: string | undefined = "";
   userDoc!: DocumentReference;
   auth: Auth | null = null;
+  mapCenter: Array<number> = [42.963, -85.668];
 
   mounted() {
     this.auth = getAuth();
     this.uid = this.auth?.currentUser?.uid;
     this.userDoc = doc(userInfoColl, this.uid);
-    this.checkDotEmployee();
+    this.getUserInfo();
   }
 
-  checkDotEmployee() {
+  getUserInfo() {
     getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
       if (userData.exists()) {
         this.dotEmployee = userData.data().userInfo.dotEmployee;
+        this.mapCenter = [
+          parseInt(userData.data().userInfo.lat),
+          parseInt(userData.data().userInfo.long),
+        ];
       }
     });
   }
