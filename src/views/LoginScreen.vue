@@ -1,8 +1,13 @@
 <template>
   <div id="form" class="hello">
     <div id="signup">
-        <h4>Are you new here?</h4>
-        <input class="button" type="button" value="Sign Up" @click="pushToSignup" />
+      <h4>Are you new here?</h4>
+      <input
+        class="button"
+        type="button"
+        value="Sign Up"
+        @click="pushToSignup"
+      />
     </div>
     <h3>Login</h3>
     <div class="form-wrapper">
@@ -13,7 +18,7 @@
       <button class="button" :disabled="email.length === 0" @click="resetPass">
         Reset Password
       </button>
-      <input  type="submit" value="Login" @click="emailLogin" />
+      <input type="submit" value="Login" @click="emailLogin" />
     </div>
     <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
   </div>
@@ -130,7 +135,8 @@ export default class LoginScreen extends Vue {
   transition: all 0.4s;
 }
 
-#form input[type="submit"]:hover, .button:hover {
+#form input[type="submit"]:hover,
+.button:hover {
   transform: scale(1.2);
 }
 
@@ -170,9 +176,9 @@ h3 {
 }
 
 #signup {
- display: flex;
- align-items: center;
- justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 h4 {
@@ -192,5 +198,4 @@ h4 {
   padding-right: 0;
   transition: all 0.4s;
 }
-
 </style>
