@@ -1,10 +1,9 @@
 <template>
   <div>
     <h1>This heading is from HomeView.vue</h1>
-    <DisplayMap/>
+    <DisplayMap :mapCenter="mapCenter" />
     <h2>Graphs</h2>
     <Graph v-bind:chartData="chartData" :key="childKey"/>
-    <DisplayMap :mapCenter="mapCenter" />
     <Graph />
   </div>
 </template>
