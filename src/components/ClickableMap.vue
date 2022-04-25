@@ -105,7 +105,8 @@ export default class ClickableMap extends Vue {
   mapCenter = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
-  potImage = "https://ik.imagekit.io/carharv/coneIcon";
+  potImage =
+    "https://upload.wikimedia.org/wikipedia/commons/4/48/BLANK_ICON.png";
 
   mounted(): void {
     //Get auth and uid
