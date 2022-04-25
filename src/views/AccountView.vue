@@ -12,15 +12,40 @@
             <b-card-text>
               <h3>Update your profile and then click Save</h3>
               <label for="fname">First Name</label>
-              <input class="account-input" type="text" id="fname" v-model.lazy="userInfoObj.fname" />
+              <input
+                class="account-input"
+                type="text"
+                id="fname"
+                v-model.lazy="userInfoObj.fname"
+              />
               <label for="lname">Last Name</label>
-              <input class="account-input" type="text" id="lname" v-model="userInfoObj.lname" />
+              <input
+                class="account-input"
+                type="text"
+                id="lname"
+                v-model="userInfoObj.lname"
+              />
               <label for="phone">Phone</label>
-              <input class="account-input" type="text" id="phone" v-model="userInfoObj.phone" />
+              <input
+                class="account-input"
+                type="text"
+                id="phone"
+                v-model="userInfoObj.phone"
+              />
               <label for="zipcode">Zipcode</label>
-              <input class="account-input" type="text" id="zipcode" v-model="userInfoObj.zipcode" />
+              <input
+                class="account-input"
+                type="text"
+                id="zipcode"
+                v-model="userInfoObj.zipcode"
+              />
               <label for="email">Email</label>
-              <input class="account-input" type="text" id="email" v-model="userInfoObj.email" />
+              <input
+                class="account-input"
+                type="text"
+                id="email"
+                v-model="userInfoObj.email"
+              />
               <button @click="storeUserInfo">Save</button>
             </b-card-text>
           </b-tab>
@@ -53,7 +78,7 @@
                     <td>{{ row.coordinates.lng.slice(0, 7) }}</td>
                     <td v-show="row.image">
                       <a :href="row.image" target="_blank">
-                        <img :src="row.image" width="50%" height="50%" />
+                        <img :src="row.image" width="30%" height="30%" />
                       </a>
                     </td>
                   </tr>
@@ -276,7 +301,7 @@ button {
   transition: all 0.4s;
   width: 150px;
   text-align: center;
-  transition: all .5s;
+  transition: all 0.5s;
 }
 
 button:hover {
