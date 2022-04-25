@@ -1,26 +1,27 @@
 <template>
-  <div id="form" class="hello">
-    <div id="signup">
-      <h4>Are you new here?</h4>
-      <input
-        class="button"
-        type="button"
-        value="Sign Up"
-        @click="pushToSignup"
-      />
+  <div id="main">
+    <div id="form" class="hello">
+      <div id="signup">
+        <h4>Are you new here?</h4>
+        <input
+          class="button"
+          type="button"
+          value="Sign Up"
+          @click="pushToSignup"
+        />
+      </div>
+      <div class="form-wrapper">
+        <label for="uname">Email: </label><br />
+        <input type="text" id="email" v-model="email" /><br />
+        <label for="password">Password: </label><br />
+        <input type="password" id="password" v-model="password" /><br /><br />
+        <button v-if="email" class="button" @click="resetPass">
+          Reset Password
+        </button>
+        <input type="submit" value="Login" @click="emailLogin" />
+      </div>
+      <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
     </div>
-    <h3>Login</h3>
-    <div class="form-wrapper">
-      <label for="uname">Email: </label><br />
-      <input type="text" id="email" v-model="email" /><br />
-      <label for="password">Password: </label><br />
-      <input type="password" id="password" v-model="password" /><br /><br />
-      <button class="button" :disabled="email.length === 0" @click="resetPass">
-        Reset Password
-      </button>
-      <input type="submit" value="Login" @click="emailLogin" />
-    </div>
-    <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
   </div>
 </template>
 
@@ -96,9 +97,12 @@ export default class LoginScreen extends Vue {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+#main {
+  margin: 2em;
+}
+
 .form-wrapper label {
   float: left;
-  padding-top: 20px;
   font-size: 20px;
 }
 
@@ -117,7 +121,6 @@ export default class LoginScreen extends Vue {
   height: 100%;
   background-color: #699ead;
   text-align: center;
-  margin-top: 150px;
   border-radius: 10px;
 }
 
@@ -129,7 +132,7 @@ export default class LoginScreen extends Vue {
   font-size: 20px;
   font-weight: bold;
   border: none;
-  padding: 5px;
+  padding: 0.25em;
   border-radius: 10px;
   padding-right: 0;
   transition: all 0.4s;
@@ -140,19 +143,19 @@ export default class LoginScreen extends Vue {
   transform: scale(1.2);
 }
 
-#form input[type="text"], #form input[type="password"] {
+#form input[type="text"],
+#form input[type="password"] {
   width: 100%;
   border-radius: 5px;
   border: none;
-  padding: 5px;
-  margin-top: 5px;
   padding-right: 0;
   padding-left: 0;
   border: 2px solid #699ead;
   transition: all 0.2s;
 }
 
-#form input[type="text"]:focus, #form input[type="password"]:focus {
+#form input[type="text"]:focus,
+#form input[type="password"]:focus {
   border: 2px solid white;
   outline: none;
 }
@@ -161,19 +164,6 @@ export default class LoginScreen extends Vue {
   height: 100%;
   color: white;
   font-weight: bold;
-}
-
-h1 {
-  margin-top: 0;
-  padding-top: 20px;
-  text-align: center;
-  color: white;
-  font-size: 36px;
-}
-
-h3 {
-  font-size: 24px;
-  margin-top: 10px;
 }
 
 #signup {
@@ -185,7 +175,7 @@ h3 {
 h4 {
   display: inline;
   margin: 0;
-  padding-right: 10px;
+  padding: 0.5em;
 }
 
 .button {
@@ -195,7 +185,7 @@ h4 {
   font-weight: bold;
   border: none;
   padding: 5px;
-  margin: 0 !important;
+  margin: 1em !important;
   height: 40px;
   border-radius: 10px;
   padding-right: 0;

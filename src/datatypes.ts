@@ -19,6 +19,11 @@ type PotholeContainer = {
   originalIndex: string;
 };
 
+type ReportContainer = {
+  pothole: Pothole;
+  type: string;
+};
+
 type user = {
   fname: string;
   lname: string;
@@ -42,4 +47,12 @@ type geoInfo = {
   locality: string;
 };
 
-export { Coordinate, Pothole, PotholeContainer, user, geoPos, geoInfo };
+export {
+  Coordinate,
+  Pothole,
+  PotholeContainer,
+  user,
+  geoPos,
+  geoInfo,
+  ReportContainer,
+};

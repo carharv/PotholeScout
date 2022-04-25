@@ -268,6 +268,11 @@ export default class AccountView extends Vue {
 </script>
 
 <style>
+img {
+  display: inline-block;
+  width: 50%;
+  height: 50%;
+}
 tr {
   white-space: nowrap;
 }
@@ -289,23 +294,32 @@ h3 {
   white-space: nowrap;
 }
 
+.account-input {
+  margin: 0 auto;
+  width: 50%;
+}
+
+table th {
+  white-space: nowrap;
+}
+
 table {
   margin-top: 8px;
-  margin: auto;
+  width: 80%;
+}
+table tr:nth-child(odd) {
+  background-color: #697cad;
+}
+table tr:nth-child(even) {
+  background-color: #699ead;
+}
+
+table td {
+  border: 0.01em solid;
 }
 
 table tr > td {
   padding: 0.5em;
-  border: 1px solid #699ead;
-}
-
-table th {
-  padding: 1em;
-}
-
-.account-input {
-  margin: 0 auto;
-  width: 50%;
 }
 
 button {
