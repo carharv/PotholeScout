@@ -262,7 +262,8 @@ export default class ClickableMap extends Vue {
     if (!this.filledPotholeArr[0]) {
       allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen;
     } else {
-      allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen - 1;
+      allIndex =
+        this.userReportsArr.indexOf(row) + this.allReportsArr.length - 1;
     }
 
     uploadBytes(storageRef, file).then(() => {
