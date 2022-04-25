@@ -14,7 +14,7 @@
       <label for="uname">Email: </label><br />
       <input type="text" id="email" v-model="email" /><br />
       <label for="password">Password: </label><br />
-      <input type="text" id="password" v-model="password" /><br /><br />
+      <input type="password" id="password" v-model="password" /><br /><br />
       <button class="button" :disabled="email.length === 0" @click="resetPass">
         Reset Password
       </button>
@@ -140,7 +140,7 @@ export default class LoginScreen extends Vue {
   transform: scale(1.2);
 }
 
-#form input[type="text"] {
+#form input[type="text"], #form input[type="password"] {
   width: 100%;
   border-radius: 5px;
   border: none;
@@ -152,7 +152,7 @@ export default class LoginScreen extends Vue {
   transition: all 0.2s;
 }
 
-#form input[type="text"]:focus {
+#form input[type="text"]:focus, #form input[type="password"]:focus {
   border: 2px solid white;
   outline: none;
 }
@@ -173,6 +173,7 @@ h1 {
 
 h3 {
   font-size: 24px;
+  margin-top: 10px;
 }
 
 #signup {
@@ -194,6 +195,8 @@ h4 {
   font-weight: bold;
   border: none;
   padding: 5px;
+  margin: 0 !important;
+  height: 40px;
   border-radius: 10px;
   padding-right: 0;
   transition: all 0.4s;

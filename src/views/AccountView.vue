@@ -252,9 +252,34 @@ table {
 
 table tr > td {
   padding: 0.5em;
+  border: 1px solid #699ead;
 }
 
 table th {
   padding: 1em;
+}
+
+input[type="text"] {
+  margin: 0 auto;
+  width: 50%;
+}
+
+button {
+  margin: 20px !important;
+  color: #699ead;
+  font-size: 15px;
+  font-weight: bold;
+  border: 1px solid #699ead;
+  padding: 5px !important;
+  border-radius: 10px !important;
+  padding-right: 0;
+  transition: all 0.4s;
+  width: 150px;
+  text-align: center;
+  transition: all .5s;
+}
+
+button:hover {
+  transform: scale(1.2);
 }
 </style>
