@@ -183,19 +183,28 @@ export default class AccountView extends Vue {
     await axios
       .request({
         method: "GET",
-        url: "http://api.positionstack.com/v1/forward?",
+        url: "https://api.allorigins.win/get",
         params: {
-          access_key: "a5af50b77b97143132298810bdd80333",
-          query: this.userInfoObj.zipcode,
+          url: `http://api.positionstack.com/v1/forward?access_key=a5af50b77b97143132298810bdd80333&query=${this.userInfoObj.zipcode}`,
         },
       })
-      .then((r: AxiosResponse) => r.data)
+      .then((r: AxiosResponse) => {
+        return r.data;
+      })
+      .then((r: any) => JSON.parse(r.contents))
       .then((r: geoPos) => {
         this.userInfoObj.lat = r.data[0].latitude.toString();
         this.userInfoObj.long = r.data[0].longitude.toString();
         this.userInfoObj.locality = r.data[0].locality;
       });
   }
+
+  /*
+.then((r: AxiosResponse) => {
+        return r.data;
+      })
+      .then((r: any) => JSON.parse(r.contents))
+  */
 
   //This function stores the user object in firestore
   async storeUserInfo() {

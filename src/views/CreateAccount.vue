@@ -12,7 +12,13 @@
           <label for="dotCheck">Are you a DOT employee?</label>
           <input type="checkbox" id="dotCheck" v-model="dotEmployee" />
           <label v-if="dotEmployee" for="dotID">DOT ID#</label>
-          <input class="input-box" v-if="dotEmployee" type="text" id="dotID" v-model="dotID" />
+          <input
+            class="input-box"
+            v-if="dotEmployee"
+            type="text"
+            id="dotID"
+            v-model="dotID"
+          />
           <br />
           <label for="phone">Phone</label>
           <input class="input-box" type="text" id="phone" v-model="phone" />
@@ -148,13 +154,15 @@ export default class SignUpView extends Vue {
     await axios
       .request({
         method: "GET",
-        url: "http://api.positionstack.com/v1/forward?",
+        url: "https://api.allorigins.win/get",
         params: {
-          access_key: "a5af50b77b97143132298810bdd80333",
-          query: this.zipcode,
+          url: `http://api.positionstack.com/v1/forward?access_key=a5af50b77b97143132298810bdd80333&query=${this.zipcode}`,
         },
       })
-      .then((r: AxiosResponse) => r.data)
+      .then((r: AxiosResponse) => {
+        return r.data;
+      })
+      .then((r: any) => JSON.parse(r.contents))
       .then((r: geoPos) => {
         this.lat = r.data[0].latitude.toString();
         this.long = r.data[0].longitude.toString();
@@ -370,7 +378,7 @@ input {
   color: #699ead;
   font-size: 15px;
   font-weight: bold;
-    border: 2px solid #699ead;
+  border: 2px solid #699ead;
   padding: 5px;
   border-radius: 10px;
   padding-right: 0;
