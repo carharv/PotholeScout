@@ -13,11 +13,11 @@
       <h2>Unfilled Potholes</h2>
       <VTable :data="potholeContainerArr">
         <template #head>
-          <th>Date</th>
-          <th>Reported By</th>
+          <VTh sortKey="pothole.dateCreated">Date Reported</VTh>
+          <VTh sortKey="pothole.creatorName">Reported By</VTh>
           <th>Lat</th>
           <th>Lng</th>
-          <th>Fill Status</th>
+          <th>Image</th>
         </template>
         <template #body="{ rows }">
           <tr v-for="row in rows" :key="row.id">
@@ -25,7 +25,11 @@
             <td>{{ row.pothole.creatorName }}</td>
             <td>{{ row.pothole.coordinates.lat.slice(0, 8) }}</td>
             <td>{{ row.pothole.coordinates.lng.slice(0, 9) }}</td>
-            <td>{{ row.pothole.filled }}</td>
+            <td>
+              <a :href="row.pothole.image" target="_blank">
+                <img :src="row.pothole.image" width="10%" height="10%" />
+              </a>
+            </td>
             <td>
               <button @click="resolvePothole(row.originalIndex)">
                 Resolve

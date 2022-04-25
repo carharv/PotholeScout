@@ -105,7 +105,7 @@ export default class ClickableMap extends Vue {
   mapCenter = [42.963, -85.668];
   geoPos: { lat?: number; lng?: number } = {};
   coneIcon = "https://ik.imagekit.io/carharv/coneIcon";
-  potImage = "";
+  potImage = "https://ik.imagekit.io/carharv/coneIcon";
 
   mounted(): void {
     //Get auth and uid
@@ -263,9 +263,12 @@ export default class ClickableMap extends Vue {
     }
 
     uploadBytes(storageRef, file).then(() => {
+      console.log("Starting upload");
       getDownloadURL(storageRef)
         .then((url) => (uploadURL = url))
         .then(() => {
+          console.log("Image uploaded and saved");
+          console.log(uploadURL);
           this.userReportsArr[userIndex].image = uploadURL;
           this.allReportsArr[allIndex].image = uploadURL;
         });
@@ -290,7 +293,11 @@ export default class ClickableMap extends Vue {
 }
 </script>
 
-<style scoped>
+<style>
+button {
+  white-space: nowrap;
+}
+
 #map {
   display: flex;
   flex-direction: column;
@@ -303,10 +310,6 @@ export default class ClickableMap extends Vue {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-button {
-  margin: 1em;
 }
 
 table {
