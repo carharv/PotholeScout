@@ -14,7 +14,12 @@
         <label for="uname">Email: </label><br />
         <input type="text" id="email" v-model="email" /><br />
         <label for="password">Password: </label><br />
-        <input type="password" id="password" v-model="password" /><br /><br />
+        <input
+          type="password"
+          id="password"
+          @keydown.enter="emailLogin"
+          v-model="password"
+        /><br /><br />
         <button v-if="email" class="button" @click="resetPass">
           Reset Password
         </button>
