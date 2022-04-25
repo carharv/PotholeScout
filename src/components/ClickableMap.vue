@@ -18,8 +18,10 @@
         >
       </LMap>
     </div>
-    <button @click="submitReport">Submit Report</button>
-    <button @click="toggleView">Toggle All Reports</button>
+    <div id="buttons">
+      <button @click="submitReport">Submit Report</button>
+      <button @click="toggleView">Toggle All Reports</button>
+    </div>
     <div id="tableDiv" v-show="userReportsArr[0]">
       <h2>My Pending Report</h2>
       <VTable :data="userReportsArr">
@@ -300,6 +302,10 @@ export default class ClickableMap extends Vue {
 <style>
 button {
   white-space: nowrap;
+}
+
+#buttons {
+  flex-direction: initial;
 }
 
 #map {

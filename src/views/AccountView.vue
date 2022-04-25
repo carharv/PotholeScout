@@ -56,35 +56,40 @@
               <button @click="deleteAcct">Delete Account</button>
             </b-card-text>
           </b-tab>
-          <b-tab title="My Reports"
-            ><b-card-text>
-              <VTable :data="userReportArr">
-                <template #head>
-                  <tr>
-                    <VTh sortKey="filled">Status</VTh>
-                    <VTh sortKey="dateCreated">Date Reported</VTh>
-                    <VTh sortKey="dateRemoved">Date Filled</VTh>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                    <th>Image</th>
-                  </tr>
-                </template>
-                <template #body="{ rows }">
-                  <tr v-for="row in rows" :key="row.id">
-                    <td>{{ row.filled }}</td>
-                    <td>{{ row.dateCreated }}</td>
-                    <td>{{ row.dateRemoved }}</td>
-                    <td>{{ row.coordinates.lat.slice(0, 6) }}</td>
-                    <td>{{ row.coordinates.lng.slice(0, 7) }}</td>
-                    <td v-show="row.image">
-                      <a :href="row.image" target="_blank">
-                        <img :src="row.image" width="30%" height="30%" />
-                      </a>
-                    </td>
-                  </tr>
-                </template>
-              </VTable> </b-card-text
-          ></b-tab>
+          <div id="tableDiv">
+            <b-tab title="My Reports">
+              <div id="tableCard">
+                <b-card-text>
+                  <VTable :data="userReportArr">
+                    <template #head>
+                      <tr>
+                        <VTh sortKey="filled">Status</VTh>
+                        <VTh sortKey="dateCreated">Date Reported</VTh>
+                        <VTh sortKey="dateRemoved">Date Filled</VTh>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Image</th>
+                      </tr>
+                    </template>
+                    <template #body="{ rows }">
+                      <tr v-for="row in rows" :key="row.id">
+                        <td>{{ row.filled }}</td>
+                        <td>{{ row.dateCreated }}</td>
+                        <td>{{ row.dateRemoved }}</td>
+                        <td>{{ row.coordinates.lat.slice(0, 6) }}</td>
+                        <td>{{ row.coordinates.lng.slice(0, 7) }}</td>
+                        <td v-show="row.image">
+                          <a :href="row.image" target="_blank">
+                            <img :src="row.image" width="30%" height="30%" />
+                          </a>
+                        </td>
+                      </tr>
+                    </template>
+                  </VTable>
+                </b-card-text>
+              </div>
+            </b-tab>
+          </div>
         </b-tabs>
       </b-card>
     </div>
@@ -267,7 +272,11 @@ tr {
   white-space: nowrap;
 }
 
-#card {
+h3 {
+  white-space: nowrap;
+}
+
+#tableDiv {
   width: 80%;
 }
 
@@ -277,6 +286,7 @@ tr {
   justify-content: center;
   align-items: center;
   text-align: center;
+  white-space: nowrap;
 }
 
 table {
