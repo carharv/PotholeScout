@@ -183,7 +183,7 @@ export default class AccountView extends Vue {
     await axios
       .request({
         method: "GET",
-        url: "http://api.positionstack.com/v1/forward?",
+        url: "http://api.positionstack.com/v1/forward",
         params: {
           access_key: "a5af50b77b97143132298810bdd80333",
           query: this.userInfoObj.zipcode,
