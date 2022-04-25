@@ -10,8 +10,9 @@
     </div>
     <DisplayMap :mapCenter="mapCenter" />
     <br />
-    <button id="refreshGraph" @click="fillGraph">Refresh graph</button>
-    <Graph v-bind:chartData="chartData" :key="childKey" />
+    <div id="graph">
+      <Graph v-bind:chartData="chartData" :key="childKey" />
+    </div>
   </div>
 </template>
 
@@ -29,6 +30,7 @@ import {
   DocumentSnapshot,
   getDoc,
   getFirestore,
+  onSnapshot,
 } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
@@ -81,7 +83,7 @@ export default class HomeView extends Vue {
 
   // Function to fill the graph
   fillGraph() {
-    getDoc(allReports).then((userData) => {
+    onSnapshot(allReports, (userData: DocumentSnapshot) => {
       if (userData.exists()) {
         var potholes = userData.data().potholeArray;
         for (let p of potholes) {
@@ -123,7 +125,7 @@ export default class HomeView extends Vue {
 </script>
 
 <style>
-#text {
+div {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -134,9 +136,7 @@ h2 {
   padding-top: 50px;
 }
 
-#refreshGraph {
-  float: left;
-  margin-left: 80px;
+#graph {
+  width: 50%;
 }
-
 </style>

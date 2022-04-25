@@ -13,63 +13,79 @@
 </template>
 
 <script>
-import { Bar } from 'vue-chartjs/legacy'
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+import { Bar } from "vue-chartjs/legacy";
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+} from "chart.js";
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+);
 
 export default {
-  name: 'BarChart',
+  name: "BarChart",
   components: { Bar },
 
   props: {
     chartData: {
-        type: Object,
-        required: true
-      },
+      type: Object,
+      required: true,
+    },
     chartId: {
       type: String,
-      default: 'bar-chart'
+      default: "bar-chart",
     },
     width: {
       type: Number,
-      default: 854
+      default: 854,
     },
     height: {
       type: Number,
-      default: 480
+      default: 480,
     },
     cssClasses: {
-      default: '',
-      type: String
+      default: "",
+      type: String,
     },
     styles: {
       type: Object,
-      default: () => {console.log()}
+      default: () => {
+        console.log();
+      },
     },
     plugins: {
       type: Object,
-      default: () => {console.log()}
+      default: () => {
+        console.log();
+      },
     },
     datasetIdKey: {
       type: String,
-      default: 'label'
+      default: "label",
     },
   },
   data() {
     return {
       chartOptions: {
-        responsive: true
-      }
-    }
-  }
-}
+        responsive: true,
+      },
+    };
+  },
+};
 </script>
 <style>
 #bar-chart {
-    height: 700px !important;
-    width: 1280px !important;
-    margin: 0 auto;
-    padding-bottom: 20px;
+  padding-bottom: 20px;
 }
 </style>
