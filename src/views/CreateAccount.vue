@@ -5,21 +5,21 @@
       <div>
         <form>
           <label for="fname">First Name</label>
-          <input type="text" id="fname" v-model="fname" />
+          <input class="input-box" type="text" id="fname" v-model="fname" />
           <label for="lname">Last Name</label>
-          <input type="text" id="lname" v-model="lname" />
+          <input class="input-box" type="text" id="lname" v-model="lname" />
           <br />
           <label for="dotCheck">Are you a DOT employee?</label>
           <input type="checkbox" id="dotCheck" v-model="dotEmployee" />
           <label v-if="dotEmployee" for="dotID">DOT ID#</label>
-          <input v-if="dotEmployee" type="text" id="dotID" v-model="dotID" />
+          <input class="input-box" v-if="dotEmployee" type="text" id="dotID" v-model="dotID" />
           <br />
           <label for="phone">Phone</label>
-          <input type="text" id="phone" v-model="phone" />
+          <input class="input-box" type="text" id="phone" v-model="phone" />
           <label for="zipcode">Zipcode</label>
           <input type="text" id="zipcode" v-model="zipcode" />
           <label for="email">Email</label>
-          <input type="text" id="email" v-model="email" />
+          <input class="input-box" type="text" id="email" v-model="email" />
           <label for="password">Password</label>
           <input type="password" id="password" v-model="password" />
           <label for="retypePassword">Retype Password</label>
@@ -370,7 +370,7 @@ input {
   color: #699ead;
   font-size: 15px;
   font-weight: bold;
-  border: none;
+    border: 2px solid #699ead;
   padding: 5px;
   border-radius: 10px;
   padding-right: 0;
@@ -392,5 +392,9 @@ li {
 
 ul.error {
   text-align: left;
+}
+
+.input-box {
+  width: 100%;
 }
 </style>
