@@ -27,7 +27,7 @@
             <td>{{ row.pothole.coordinates.lng.slice(0, 9) }}</td>
             <td>
               <a :href="row.pothole.image" target="_blank">
-                <img :src="row.pothole.image" width="10%" height="10%" />
+                <img :src="row.pothole.image" width="25%" height="25%" />
               </a>
             </td>
             <td>
@@ -179,6 +179,7 @@ export default class DOTMap extends Vue {
 
 table {
   margin-top: 8px;
+  width: 80%;
 }
 table tr:nth-child(odd) {
   background-color: #697cad;
