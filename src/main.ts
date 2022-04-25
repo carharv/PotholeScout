@@ -1,8 +1,23 @@
-import Vue from 'vue'
-import App from './App.vue'
+import Vue from "vue";
+import App from "./App.vue";
+import router from "./router";
+import SmartTable from "vuejs-smart-table";
+import { initializeApp } from "firebase/app";
+import { firebaseConfig } from "./firebaseConfig";
+import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap-vue/dist/bootstrap-vue.css";
+import "leaflet/dist/leaflet.css";
 
-Vue.config.productionTip = false
+//Use
+Vue.use(SmartTable);
+Vue.use(BootstrapVue);
+Vue.use(BootstrapVueIcons);
+
+Vue.config.productionTip = false;
+const app = initializeApp(firebaseConfig);
 
 new Vue({
-  render: h => h(App),
-}).$mount('#app')
+  router,
+  render: (h) => h(App),
+}).$mount("#app");
