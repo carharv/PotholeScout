@@ -154,13 +154,15 @@ export default class SignUpView extends Vue {
     await axios
       .request({
         method: "GET",
-        url: "http://api.positionstack.com/v1/forward",
+        url: "https://api.allorigins.win/get",
         params: {
-          access_key: "a5af50b77b97143132298810bdd80333",
-          query: this.zipcode,
+          url: `http://api.positionstack.com/v1/forward?access_key=a5af50b77b97143132298810bdd80333&query=${this.zipcode}`,
         },
       })
-      .then((r: AxiosResponse) => r.data)
+      .then((r: AxiosResponse) => {
+        return r.data;
+      })
+      .then((r: any) => JSON.parse(r.contents))
       .then((r: geoPos) => {
         this.lat = r.data[0].latitude.toString();
         this.long = r.data[0].longitude.toString();
