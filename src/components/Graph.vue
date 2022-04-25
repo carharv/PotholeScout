@@ -70,5 +70,6 @@ export default {
     height: 700px !important;
     width: 1280px !important;
     margin: 0 auto;
+    padding-bottom: 20px;
 }
 </style>

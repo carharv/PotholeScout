@@ -10,6 +10,7 @@
     </div>
     <DisplayMap :mapCenter="mapCenter" />
     <br />
+    <button id="refreshGraph" @click="fillGraph">Refresh graph</button>
     <Graph v-bind:chartData="chartData" :key="childKey" />
   </div>
 </template>
@@ -132,4 +133,10 @@ export default class HomeView extends Vue {
 h2 {
   padding-top: 50px;
 }
+
+#refreshGraph {
+  float: left;
+  margin-left: 80px;
+}
+
 </style>

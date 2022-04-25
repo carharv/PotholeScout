@@ -237,11 +237,13 @@ export default class ClickableMap extends Vue {
     if (!this.filledPotholeArr[0]) {
       allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen;
     } else {
-      allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen - 1;
+      allIndex =
+        this.userReportsArr.indexOf(row) + this.allReportsArr.length - 2;
     }
 
     this.userReportsArr.splice(userIndex, 1);
     this.allReportsArr.splice(allIndex, 1);
+    this.displayPotholeArr.splice(allIndex, 1);
   }
 
   //This function is used to remove a user's report before they submit it
