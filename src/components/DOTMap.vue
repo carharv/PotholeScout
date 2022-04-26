@@ -1,6 +1,7 @@
 <template>
   <div>
     <div id="map">
+      <h6 v-if="locality">Map Centered On {{ locality }}</h6>
       <LMap style="height: 500px; width: 800px" :zoom="13" :center="mapCenter">
         <LTileLayer :url="mapUrl" :attribution="mapAttribution"></LTileLayer>
         <LMarker v-for="p in displayArr" :key="p.id" :lat-lng="p.coordinates">
@@ -27,7 +28,7 @@
             <td>{{ row.pothole.coordinates.lng.slice(0, 9) }}</td>
             <td>
               <a :href="row.pothole.image" target="_blank">
-                <img :src="row.pothole.image" width="25%" height="25%" />
+                <img :src="row.pothole.image" />
               </a>
             </td>
             <td>
@@ -58,15 +59,7 @@ import {
   onSnapshot,
   getDoc,
 } from "firebase/firestore";
-import {
-  getAuth,
-  onAuthStateChanged,
-  User,
-  Auth,
-  signOut,
-  deleteUser,
-  sendPasswordResetEmail,
-} from "firebase/auth";
+import { getAuth, Auth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { app } from "../firebaseConfig";
 
@@ -88,7 +81,7 @@ export default class DOTMap extends Vue {
   displayArr: Array<Pothole> = [];
   potholeContainerArr: Array<PotholeContainer> = [];
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-  testVar = "";
+  locality = "";
   mapAttribution =
     "&copy; <a target='_blank' href='http://osm.org/copyright'>OpenStreetMap</a>";
 
@@ -152,6 +145,7 @@ export default class DOTMap extends Vue {
     getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
       if (userData.exists()) {
         this.userInfoObj = userData.data().userInfo;
+        this.locality = this.userInfoObj.locality;
         this.mapCenter = [
           parseFloat(this.userInfoObj.lat),
           parseFloat(this.userInfoObj.long),
@@ -163,6 +157,12 @@ export default class DOTMap extends Vue {
 </script>
 
 <style scoped>
+img {
+  /*display: block;*/
+  width: 100%;
+  height: 100%;
+}
+
 #map {
   display: flex;
   flex-direction: column;
@@ -176,6 +176,9 @@ export default class DOTMap extends Vue {
   justify-content: center;
   align-items: center;
 }
+table th {
+  white-space: nowrap;
+}
 
 table {
   margin-top: 8px;
@@ -186,6 +189,10 @@ table tr:nth-child(odd) {
 }
 table tr:nth-child(even) {
   background-color: #699ead;
+}
+
+table td {
+  border: 0.01em solid;
 }
 
 table tr > td {

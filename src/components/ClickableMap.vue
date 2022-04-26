@@ -1,6 +1,7 @@
 <template>
   <div>
     <div id="map">
+      <h6 v-if="locality">Map Centered On {{ locality }}</h6>
       <LMap
         style="height: 500px; width: 800px"
         :zoom="13"
@@ -18,24 +19,28 @@
         >
       </LMap>
     </div>
-    <button @click="submitReport">Submit Report</button>
-    <button @click="toggleView">Toggle All Reports</button>
-    <div id="tableDiv" v-show="userReportsArr[0]">
+    <div id="buttons">
+      <button @click="submitReport">Submit Report</button>
+      <button @click="toggleView">Toggle All Reports</button>
+    </div>
+    <div id="reportDiv" v-show="userTableArr[0]">
       <h2>My Pending Report</h2>
-      <VTable :data="userReportsArr">
+      <VTable :data="userTableArr">
         <template #head>
           <th>Date</th>
           <th>Lat</th>
           <th>Lng</th>
-          <th>Status</th>
+          <th>Image</th>
         </template>
         <template #body="{ rows }">
           <tr v-for="row in rows" :key="row.id">
-            <td>{{ row.dateCreated }}</td>
-            <td>{{ row.coordinates.lat.slice(0, 8) }}</td>
-            <td>{{ row.coordinates.lng.slice(0, 8) }}</td>
-            <td>{{ row.filled }}</td>
-            <td>
+            <td>{{ row.pothole.dateCreated }}</td>
+            <td>{{ row.pothole.coordinates.lat.slice(0, 8) }}</td>
+            <td>{{ row.pothole.coordinates.lng.slice(0, 8) }}</td>
+            <td id="imageTD">
+              <a :href="row.pothole.image" target="_blank">
+                <img :src="row.pothole.image" />
+              </a>
               <input
                 type="file"
                 ref="file"
@@ -56,7 +61,7 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Pothole } from "../datatypes";
+import { Pothole, PotholeContainer, ReportContainer } from "../datatypes";
 import {
   collection,
   CollectionReference,
@@ -82,21 +87,19 @@ const storage = getStorage();
 @Component({ components: { LMap, LTileLayer, LMarker, LIcon, LCircleMarker } })
 export default class ClickableMap extends Vue {
   //Pothole data variables
-  initialPotholeArr: Array<Pothole> = [];
-  userReportsArr: Array<Pothole> = [];
-  allReportsArr: Array<Pothole> = [];
   displayPotholeArr: Array<Pothole> = [];
-  filledPotholeArr: Array<Pothole> = [];
+  userTableArr: Array<ReportContainer> = [];
+  reportContainerArr: Array<ReportContainer> = [];
   allReports: any;
   showUserOnly = false;
-  initialArrLen = 0;
-  initialLoad = true;
+  loadingUrl = "https://ik.imagekit.io/carharv/loadingGif.gif";
 
   //Firebase user variables
   uid = "";
   auth: Auth | null = null;
   userDoc!: DocumentReference;
   uidName = "";
+  locality = "";
 
   //Map variables
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -119,14 +122,13 @@ export default class ClickableMap extends Vue {
 
     //Call the getPotholes function to load existing potholes and listen for updates
     this.getPotholes();
-
-    //Display allReports by default
-    this.displayPotholeArr = this.allReportsArr;
   }
 
+  //This function gets the user's info so that the map can be centered to their location
   getUserInfo() {
     getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
       if (userData.exists()) {
+        this.locality = userData.data().userInfo.locality;
         this.uidName =
           userData.data().userInfo.fname + " " + userData.data().userInfo.lname;
         this.mapCenter = [
@@ -141,37 +143,72 @@ export default class ClickableMap extends Vue {
   getPotholes(): void {
     onSnapshot(allReportsDoc, (data: DocumentSnapshot) => {
       if (data.exists()) {
+        //First hold data in this variable
         this.allReports = data.data();
 
-        this.handleUserReports();
-
-        //Loop through each report in the newly updated array
-        //If the report isn't filled then show it on the map to discourage duplicate reports
-        for (var report of this.allReports.potholeArray) {
+        //Loop through each report in the new allReports array
+        //Then sort the data. Unfilled potholes are assigned the type "old" and filled potholes are assigned "filled"
+        //Once they have been typed, push all reports into the reportContainerArr
+        for (let report of this.allReports.potholeArray) {
           if (report.filled !== "Filled") {
-            this.allReportsArr.push(report);
+            this.reportContainerArr.push({
+              pothole: report,
+              type: "old",
+            });
           } else {
-            this.filledPotholeArr.push(report);
+            this.reportContainerArr.push({ pothole: report, type: "filled" });
           }
         }
 
-        //Store the length of the inital array
-        this.initialArrLen = this.initialPotholeArr.length;
+        //Create the display array and the user reports array
+        this.createArrays();
       }
     });
   }
 
-  //This function is designed to help keep track of user reports when a realtime update happens
-  handleUserReports() {
-    //If this is the first time loading the data and not just getting an update
-    if (this.initialLoad) {
-      //Put all reports into the initialPotholeArr
-      this.allReports.potholeArray.forEach((obj: Pothole) =>
-        this.initialPotholeArr.push(Object.assign({}, obj))
-      );
-      //No longer initial load after running this function
-      this.initialLoad = false;
+  //Create the array of potholes to be displayed
+  createDisplayArr() {
+    //First clear the array
+    this.displayPotholeArr.splice(0);
+
+    //If the user only wants to see their pending reports
+    if (this.showUserOnly) {
+      for (let report of this.reportContainerArr) {
+        //Only push potholes that are typed "new" to the display array
+        if (report.type === "new") {
+          this.displayPotholeArr.push(report.pothole);
+        }
+      }
+    } else if (!this.showUserOnly) {
+      //If the user wants to see all unfilled reports
+      //Push both old unfilled potholes and new pending potholes to the display array
+      for (let report of this.reportContainerArr) {
+        if (report.type === "old") {
+          this.displayPotholeArr.push(report.pothole);
+        } else if (report.type === "new") {
+          this.displayPotholeArr.push(report.pothole);
+        }
+      }
     }
+  }
+
+  //Crate the array that will be used in the pending report table
+  createUserTableArr() {
+    //First clear the array
+    this.userTableArr.splice(0);
+
+    //Then push just the new pending reports to the array
+    for (let report of this.reportContainerArr) {
+      if (report.type === "new") {
+        this.userTableArr.push(report);
+      }
+    }
+  }
+
+  //Call both create functions
+  createArrays() {
+    this.createDisplayArr();
+    this.createUserTableArr();
   }
 
   //This function creates a new user report
@@ -182,31 +219,25 @@ export default class ClickableMap extends Vue {
     while (geoPos.lng < -180) geoPos.lng += 360;
     this.geoPos = { ...geoPos };
 
-    //Push the user's report to the userReportsArr
-    this.userReportsArr.push({
-      creatorUID: this.uid,
-      dateCreated: Date().slice(0, 25),
-      coordinates: {
-        lng: this.geoPos.lng!.toString(),
-        lat: this.geoPos.lat!.toString(),
+    //First push the report to the reportContainerArr
+    this.reportContainerArr.push({
+      pothole: {
+        creatorUID: this.uid,
+        dateCreated: Date().slice(0, 25),
+        coordinates: {
+          lng: this.geoPos.lng!.toString(),
+          lat: this.geoPos.lat!.toString(),
+        },
+        filled: "Not Filled",
+        creatorName: this.uidName,
+        image: this.potImage,
       },
-      filled: "Not Filled",
-      creatorName: this.uidName,
-      image: this.potImage,
+      //It is typed as "new"
+      type: "new",
     });
 
-    //Also push the user's report to the allReportsArr
-    this.allReportsArr.push({
-      creatorUID: this.uid,
-      dateCreated: Date().slice(0, 25),
-      coordinates: {
-        lng: this.geoPos.lng!.toString(),
-        lat: this.geoPos.lat!.toString(),
-      },
-      filled: "Not Filled",
-      creatorName: this.uidName,
-      image: this.potImage,
-    });
+    //After a new pothole is added refresh the arrays
+    this.createArrays();
   }
 
   //This function is called when a user clicks on the map and triggers a new report
@@ -214,68 +245,51 @@ export default class ClickableMap extends Vue {
     this.newUserReport(e.latlng);
   }
 
-  //This function saves the allReportsArr
+  //This function saves all reports to firestore
   submitReport(): void {
-    this.filledPotholeArr.forEach((obj: Pothole) =>
-      this.allReportsArr.push(Object.assign({}, obj))
-    );
+    let allReports: Array<Pothole> = [];
 
-    setDoc(allReportsDoc, { potholeArray: this.allReportsArr });
+    for (let report of this.reportContainerArr) {
+      allReports.push(report.pothole);
+    }
+
+    setDoc(allReportsDoc, { potholeArray: allReports });
 
     this.pushToHome();
   }
 
   //This function is used to remove a user's report before they submit it
-  removeReport(row: Pothole): void {
-    //Since the target report in userReportsArr and allReportsArr have different indexes
-    //we need use the initialArrLen variable to keep track
-    let userIndex = this.userReportsArr.indexOf(row);
-    let allIndex;
-
-    //Index changes based on whether or not there are any filled potholes
-    //Not sure why but this makes things work
-    if (!this.filledPotholeArr[0]) {
-      allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen;
-    } else {
-      allIndex =
-        this.userReportsArr.indexOf(row) + this.allReportsArr.length - 2;
-    }
-
-    this.userReportsArr.splice(userIndex, 1);
-    this.allReportsArr.splice(allIndex, 1);
-    this.displayPotholeArr.splice(allIndex, 1);
+  removeReport(row: ReportContainer): void {
+    //First get the index to remove
+    let removalIndex = this.reportContainerArr.indexOf(row);
+    //Remove it
+    this.reportContainerArr.splice(removalIndex, 1);
+    //Refresh arrays
+    this.createArrays();
   }
 
-  //This function is used to remove a user's report before they submit it
-  addImage(row: Pothole, file: File): void {
-    //Since the target report in userReportsArr and allReportsArr have different indexes
-    //we need use the initialArrLen variable to keep track
-    let userIndex = this.userReportsArr.indexOf(row);
-    let allIndex: number;
+  //This function uploads an image to firebase storage and returns the url
+  addImage(row: ReportContainer, file: File): void {
+    //Create the firestore path with the hash from the image blob url
     let uploadLocation: string =
       "images/" + URL.createObjectURL(file).toString().slice(27);
     let storageRef = ref(storage, uploadLocation);
     let uploadURL: string;
+    let reportIndex = this.reportContainerArr.indexOf(row);
 
-    //Index changes based on whether or not there are any filled potholes
-    //Not sure why but this makes things work
-    if (!this.filledPotholeArr[0]) {
-      allIndex = this.userReportsArr.indexOf(row) + this.initialArrLen;
-    } else {
-      allIndex =
-        this.userReportsArr.indexOf(row) + this.allReportsArr.length - 1;
-    }
-
+    //While uploading show hte loading gif
+    this.reportContainerArr[reportIndex].pothole.image = this.loadingUrl;
+    //Upload the image to firebase storage
     uploadBytes(storageRef, file).then(() => {
-      console.log("Starting upload");
+      //Get the download url using the storage ref we just made
       getDownloadURL(storageRef)
         .then((url) => (uploadURL = url))
         .then(() => {
-          console.log("Image uploaded and saved");
-          console.log(uploadURL);
-          this.userReportsArr[userIndex].image = uploadURL;
-          this.allReportsArr[allIndex].image = uploadURL;
-        });
+          //Add the url to the pothole object
+          this.reportContainerArr[reportIndex].pothole.image = uploadURL;
+        })
+        //Finally refresh the arrays
+        .finally(() => this.createArrays());
     });
   }
 
@@ -283,12 +297,12 @@ export default class ClickableMap extends Vue {
   //and just the user's pending reports
   toggleView() {
     if (!this.showUserOnly) {
-      this.displayPotholeArr = this.userReportsArr;
       this.showUserOnly = true;
     } else {
-      this.displayPotholeArr = this.allReportsArr;
       this.showUserOnly = false;
     }
+    //Only need to make a new display array
+    this.createDisplayArr();
   }
 
   pushToHome(): void {
@@ -298,7 +312,12 @@ export default class ClickableMap extends Vue {
 </script>
 
 <style>
-button {
+h6 {
+  font-style: italic;
+}
+
+#buttons {
+  flex-direction: initial;
   white-space: nowrap;
 }
 
@@ -309,21 +328,40 @@ button {
   align-items: center;
 }
 
-#tableDiv {
+#imageTD {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
+#reportDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2em;
+}
+
+table th {
+  white-space: nowrap;
+}
+
 table {
   margin-top: 8px;
+  margin: auto;
 }
+
 table tr:nth-child(odd) {
   background-color: #697cad;
 }
+
 table tr:nth-child(even) {
   background-color: #699ead;
+}
+
+table td {
+  border: 0.01em solid;
 }
 
 table tr > td {

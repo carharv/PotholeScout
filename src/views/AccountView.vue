@@ -56,35 +56,40 @@
               <button @click="deleteAcct">Delete Account</button>
             </b-card-text>
           </b-tab>
-          <b-tab title="My Reports"
-            ><b-card-text>
-              <VTable :data="userReportArr">
-                <template #head>
-                  <tr>
-                    <VTh sortKey="filled">Status</VTh>
-                    <VTh sortKey="dateCreated">Date Reported</VTh>
-                    <VTh sortKey="dateRemoved">Date Filled</VTh>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                    <th>Image</th>
-                  </tr>
-                </template>
-                <template #body="{ rows }">
-                  <tr v-for="row in rows" :key="row.id">
-                    <td>{{ row.filled }}</td>
-                    <td>{{ row.dateCreated }}</td>
-                    <td>{{ row.dateRemoved }}</td>
-                    <td>{{ row.coordinates.lat.slice(0, 6) }}</td>
-                    <td>{{ row.coordinates.lng.slice(0, 7) }}</td>
-                    <td v-show="row.image">
-                      <a :href="row.image" target="_blank">
-                        <img :src="row.image" width="30%" height="30%" />
-                      </a>
-                    </td>
-                  </tr>
-                </template>
-              </VTable> </b-card-text
-          ></b-tab>
+          <div id="tableDiv">
+            <b-tab title="My Reports">
+              <div id="tableCard">
+                <b-card-text>
+                  <VTable :data="userReportArr">
+                    <template #head>
+                      <tr>
+                        <VTh sortKey="filled">Status</VTh>
+                        <VTh sortKey="dateCreated">Date Reported</VTh>
+                        <VTh sortKey="dateRemoved">Date Filled</VTh>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Image</th>
+                      </tr>
+                    </template>
+                    <template #body="{ rows }">
+                      <tr v-for="row in rows" :key="row.id">
+                        <td>{{ row.filled }}</td>
+                        <td>{{ row.dateCreated }}</td>
+                        <td>{{ row.dateRemoved }}</td>
+                        <td>{{ row.coordinates.lat.slice(0, 6) }}</td>
+                        <td>{{ row.coordinates.lng.slice(0, 7) }}</td>
+                        <td v-show="row.image">
+                          <a :href="row.image" target="_blank">
+                            <img :src="row.image" width="30%" height="30%" />
+                          </a>
+                        </td>
+                      </tr>
+                    </template>
+                  </VTable>
+                </b-card-text>
+              </div>
+            </b-tab>
+          </div>
         </b-tabs>
       </b-card>
     </div>
@@ -183,19 +188,28 @@ export default class AccountView extends Vue {
     await axios
       .request({
         method: "GET",
-        url: "http://api.positionstack.com/v1/forward?",
+        url: "https://api.allorigins.win/get",
         params: {
-          access_key: "a5af50b77b97143132298810bdd80333",
-          query: this.userInfoObj.zipcode,
+          url: `http://api.positionstack.com/v1/forward?access_key=a5af50b77b97143132298810bdd80333&query=${this.userInfoObj.zipcode}`,
         },
       })
-      .then((r: AxiosResponse) => r.data)
+      .then((r: AxiosResponse) => {
+        return r.data;
+      })
+      .then((r: any) => JSON.parse(r.contents))
       .then((r: geoPos) => {
         this.userInfoObj.lat = r.data[0].latitude.toString();
         this.userInfoObj.long = r.data[0].longitude.toString();
         this.userInfoObj.locality = r.data[0].locality;
       });
   }
+
+  /*
+.then((r: AxiosResponse) => {
+        return r.data;
+      })
+      .then((r: any) => JSON.parse(r.contents))
+  */
 
   //This function stores the user object in firestore
   async storeUserInfo() {
@@ -254,11 +268,20 @@ export default class AccountView extends Vue {
 </script>
 
 <style>
+img {
+  display: inline-block;
+  width: 50%;
+  height: 50%;
+}
 tr {
   white-space: nowrap;
 }
 
-#card {
+h3 {
+  white-space: nowrap;
+}
+
+#tableDiv {
   width: 80%;
 }
 
@@ -268,25 +291,35 @@ tr {
   justify-content: center;
   align-items: center;
   text-align: center;
-}
-
-table {
-  margin-top: 8px;
-  margin: auto;
-}
-
-table tr > td {
-  padding: 0.5em;
-  border: 1px solid #699ead;
-}
-
-table th {
-  padding: 1em;
+  white-space: nowrap;
 }
 
 .account-input {
   margin: 0 auto;
   width: 50%;
+}
+
+table th {
+  white-space: nowrap;
+}
+
+table {
+  margin-top: 8px;
+  width: 80%;
+}
+table tr:nth-child(odd) {
+  background-color: #697cad;
+}
+table tr:nth-child(even) {
+  background-color: #699ead;
+}
+
+table td {
+  border: 0.01em solid;
+}
+
+table tr > td {
+  padding: 0.5em;
 }
 
 button {
