@@ -140,4 +140,8 @@ table tr:nth-child(even) {
 table tr > td {
   padding: 0.5em;
 }
+
+h6 {
+  font-style: italic;
+}
 </style>

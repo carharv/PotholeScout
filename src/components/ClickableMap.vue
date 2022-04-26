@@ -1,6 +1,7 @@
 <template>
   <div>
     <div id="map">
+      <h6 v-if="locality">Map Centered On {{ locality }}</h6>
       <LMap
         style="height: 500px; width: 800px"
         :zoom="13"
@@ -98,6 +99,7 @@ export default class ClickableMap extends Vue {
   auth: Auth | null = null;
   userDoc!: DocumentReference;
   uidName = "";
+  locality = "";
 
   //Map variables
   mapUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -126,6 +128,7 @@ export default class ClickableMap extends Vue {
   getUserInfo() {
     getDoc(this.userDoc).then((userData: DocumentSnapshot) => {
       if (userData.exists()) {
+        this.locality = userData.data().userInfo.locality;
         this.uidName =
           userData.data().userInfo.fname + " " + userData.data().userInfo.lname;
         this.mapCenter = [
@@ -309,6 +312,10 @@ export default class ClickableMap extends Vue {
 </script>
 
 <style>
+h6 {
+  font-style: italic;
+}
+
 #buttons {
   flex-direction: initial;
   white-space: nowrap;
