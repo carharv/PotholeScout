@@ -29,7 +29,12 @@
           <label for="password">Password</label>
           <input type="password" id="password" v-model="password" />
           <label for="retypePassword">Retype Password</label>
-          <input type="password" id="retypePassword" v-model="retypePassword" />
+          <input
+            type="password"
+            id="retypePassword"
+            @keyup.enter="createAccount"
+            v-model="retypePassword"
+          />
         </form>
       </div>
       <div>

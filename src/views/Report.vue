@@ -9,9 +9,7 @@
       </h5>
       <br />
     </div>
-    <div id="map">
-      <ClickableMap />
-    </div>
+    <ClickableMap />
   </div>
 </template>
 
